@@ -1,108 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Cinema_app.model;
+using Cinema_app.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CinemaApp.Models;
-using Cinema_app.model;
+using System.Collections.Generic;
 
 namespace Cinema_app.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MoviesController : ControllerBase
+    public class MovieController : ControllerBase
     {
-        private readonly CinemaDbContext _context;
+        private readonly MovieService _movieService;
 
-        public MoviesController(CinemaDbContext context)
+        public MovieController(MovieService movieService)
         {
-            _context = context;
+            _movieService = movieService;
         }
 
-        // GET: api/Movies
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
-        {
-            return await _context.Movies.ToListAsync();
-        }
-
-        // GET: api/Movies/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Movie>> GetMovie(int id)
-        {
-            var movie = await _context.Movies.FindAsync(id);
-
-            if (movie == null)
-            {
-                return NotFound();
-            }
-
-            return movie;
-        }
-
-        // PUT: api/Movies/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMovie(int id, Movie movie)
-        {
-            if (id != movie.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(movie).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MovieExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Movies
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // Add a new movie
         [HttpPost]
-        public async Task<ActionResult<Movie>> PostMovie(Movie movie)
+        public IActionResult AddMovie([FromBody] Movie movie)
         {
-            _context.Movies.Add(movie);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetMovie", new { id = movie.Id }, movie);
+            _movieService.AddMovie(movie);
+            return Ok(new { Message = "Movie added successfully" });
         }
 
-        // DELETE: api/Movies/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMovie(int id)
+        // Get all movies
+        [HttpGet]
+        public IActionResult GetAllMovies()
         {
-            var movie = await _context.Movies.FindAsync(id);
+            var movies = _movieService.GetAllMovies();
+            return Ok(movies);
+        }
+
+        // Get movie by ID
+        [HttpGet("{id}")]
+        public IActionResult GetMovieById(int id)
+        {
+            var movie = _movieService.GetMovieById(id);
             if (movie == null)
             {
-                return NotFound();
+                return NotFound(new { Message = "Movie not found" });
             }
-
-            _context.Movies.Remove(movie);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(movie);
         }
 
-        private bool MovieExists(int id)
+        // Delete a movie by ID
+        [HttpDelete("{id}")]
+        public IActionResult DeleteMovie(int id)
         {
-            return _context.Movies.Any(e => e.Id == id);
+            _movieService.DeleteMovieById(id);
+            return Ok(new { Message = "Movie deleted successfully" });
         }
+
+        // Search movies by title
+        //[HttpGet("search")]
+        //public IActionResult SearchMovies([FromQuery] string searchTerm)
+        //{
+            //var movies = _movieService.Sear(searchTerm);
+          //  return Ok(movies);
+        //}
     }
 }

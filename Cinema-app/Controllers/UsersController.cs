@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CinemaApp.Models;
 using Cinema_app.model;
+using Cinema_app.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace Cinema_app.Controllers
 {
@@ -14,95 +13,128 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly CinemaDbContext _context;
+        private readonly UserService _userService;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IConfiguration _configuration;
 
-        public UsersController(CinemaDbContext context)
+        public UsersController(
+           UserManager<User> userManager,
+           SignInManager<User> signInManager,
+           IConfiguration configuration,
+           RoleManager<IdentityRole> roleManager,
+           UserService userService)
         {
-            _context = context;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _configuration = configuration;
+            _roleManager = roleManager;
+            _userService = userService;
         }
 
-        // GET: api/Users
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] SignUp model)
         {
-            return await _context.Users.ToListAsync();
+            if (string.IsNullOrEmpty(model.Role))
+            {
+                return BadRequest("Role is required.");
+            }
+
+            var user = new User { UserName = model.Name, Email = model.Email, Name = model.Name };
+            var result = _userManager.CreateAsync(user, model.Password).Result;
+
+            if (result.Succeeded)
+            {
+                if (!_roleManager.RoleExistsAsync(model.Role).Result)
+                {
+                    _roleManager.CreateAsync(new IdentityRole(model.Role)).Wait();
+                }
+
+                _userManager.AddToRoleAsync(user, model.Role).Wait();
+
+                var isAdmin = model.Role == "Admin";
+                return Ok(new
+                {
+                    Result = "User registered successfully.",
+                    IsAdmin = isAdmin
+                });
+            }
+
+            return BadRequest(new { Errors = result.Errors.Select(e => e.Description) });
         }
 
-        // GET: api/Users/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] Login model)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = _userManager.FindByEmailAsync(model.Email).Result;
+            if (user != null)
+            {
+                var result = _signInManager.PasswordSignInAsync(user, model.password, isPersistent: false, lockoutOnFailure: false).Result;
 
+                if (result.Succeeded)
+                {
+                    var roles = _userManager.GetRolesAsync(user).Result;
+                    var isAdmin = roles.Contains("Admin");
+                    return Ok(new
+                    {
+                        Message = "Login successful",
+                        UserName = user.UserName,
+                        Email = user.Email,
+                        IsAdmin = isAdmin
+                    });
+                }
+
+                if (result.IsLockedOut)
+                {
+                    return Unauthorized("User account is locked.");
+                }
+
+                if (result.IsNotAllowed)
+                {
+                    return Unauthorized("User is not allowed to sign in.");
+                }
+            }
+
+            return Unauthorized("Invalid login attempt.");
+        }
+
+        [HttpGet("get-all-users")]
+        public IActionResult GetAllUsers()
+        {
+            var allUsers = _userService.GetAllUsers();
+            return Ok(allUsers);
+        }
+
+        [HttpGet("get-user-by-id/{id}")]
+        public IActionResult GetUserById(int id)
+        {
+            var user = _userService.GetUserById(id);
             if (user == null)
             {
-                return NotFound();
+                return NotFound("User not found.");
             }
-
-            return user;
+            return Ok(user);
         }
 
-        // PUT: api/Users/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        [HttpPut("update-user-by-id/{id}")]
+        public IActionResult UpdateUserById(int id, [FromBody] List<string> preferences)
         {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(user).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            _userService.UpdateUserPreferences(id, preferences);
+            return Ok("User preferences updated successfully.");
         }
 
-        // POST: api/Users
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        [HttpDelete("delete-user-by-id/{id}")]
+        public IActionResult DeleteUserById(int id)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUser", new { id = user.Id }, user);
-        }
-
-        // DELETE: api/Users/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
+            var user = _userService.GetUserById(id);
             if (user == null)
             {
-                return NotFound();
+                return NotFound("User not found.");
             }
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool UserExists(int id)
-        {
-            return _context.Users.Any(e => e.Id == id);
+            _userService.DeleteUserById(id);
+            return Ok("User deleted successfully.");
         }
     }
 }

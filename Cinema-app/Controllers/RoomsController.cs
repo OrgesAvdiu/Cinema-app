@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Cinema_app.model;
+using Cinema_app.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CinemaApp.Models;
-using Cinema_app.model;
+using System.Collections.Generic;
 
 namespace Cinema_app.Controllers
 {
@@ -14,95 +9,82 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class RoomsController : ControllerBase
     {
-        private readonly CinemaDbContext _context;
+        private readonly RoomService _roomService;
 
-        public RoomsController(CinemaDbContext context)
+        public RoomsController(RoomService roomService)
         {
-            _context = context;
+            _roomService = roomService;
         }
 
-        // GET: api/Rooms
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Room>>> GetRooms()
-        {
-            return await _context.Rooms.ToListAsync();
-        }
-
-        // GET: api/Rooms/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Room>> GetRoom(int id)
-        {
-            var room = await _context.Rooms.FindAsync(id);
-
-            if (room == null)
-            {
-                return NotFound();
-            }
-
-            return room;
-        }
-
-        // PUT: api/Rooms/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutRoom(int id, Room room)
-        {
-            if (id != room.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(room).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!RoomExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Rooms
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // Add a new room
         [HttpPost]
-        public async Task<ActionResult<Room>> PostRoom(Room room)
+        public IActionResult AddRoom([FromBody] Room room)
         {
-            _context.Rooms.Add(room);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetRoom", new { id = room.Id }, room);
+            _roomService.AddRoom(room);
+            return Ok(new { Message = "Room added successfully" });
         }
 
-        // DELETE: api/Rooms/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRoom(int id)
+        // Get all rooms
+        [HttpGet]
+        public IActionResult GetAllRooms()
         {
-            var room = await _context.Rooms.FindAsync(id);
+            var rooms = _roomService.GetAllRooms();
+            return Ok(rooms);
+        }
+
+        // Get room by ID
+        [HttpGet("{id}")]
+        public IActionResult GetRoomById(int id)
+        {
+            var room = _roomService.GetRoomById(id);
             if (room == null)
             {
-                return NotFound();
+                return NotFound(new { Message = "Room not found" });
             }
-
-            _context.Rooms.Remove(room);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(room);
         }
 
-        private bool RoomExists(int id)
+        // Update a room
+        [HttpPut("{id}")]
+        public IActionResult UpdateRoom(int id, [FromBody] Room room)
         {
-            return _context.Rooms.Any(e => e.Id == id);
+            var existingRoom = _roomService.GetRoomById(id);
+            if (existingRoom == null)
+            {
+                return NotFound(new { Message = "Room not found" });
+            }
+            room.Id = id; // Ensure the correct ID is used
+            _roomService.UpdateRoom(room);
+            return Ok(new { Message = "Room updated successfully" });
+        }
+
+        // Delete a room by ID
+        [HttpDelete("{id}")]
+        public IActionResult DeleteRoom(int id)
+        {
+            var room = _roomService.GetRoomById(id);
+            if (room == null)
+            {
+                return NotFound(new { Message = "Room not found" });
+            }
+            _roomService.DeleteRoom(id);
+            return Ok(new { Message = "Room deleted successfully" });
+        }
+
+        // Get rooms by Cinema ID
+        [HttpGet("byCinema/{cinemaId}")]
+        public IActionResult GetRoomsByCinemaId(int cinemaId)
+        {
+            var rooms = _roomService.GetRoomsByCinemaId(cinemaId);
+            return Ok(rooms);
+        }
+
+        // Search rooms by features
+        [HttpGet("search")]
+        public IActionResult SearchRooms([FromQuery] string searchTerm)
+        {
+            var rooms = _roomService.SearchRooms(searchTerm);
+            return Ok(rooms);
         }
     }
 }

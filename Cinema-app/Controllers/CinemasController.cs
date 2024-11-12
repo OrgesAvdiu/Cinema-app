@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Cinema_app.model;
+using Cinema_app.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CinemaApp.Models;
-using Cinema_app.model;
+using System.Collections.Generic;
 
 namespace Cinema_app.Controllers
 {
@@ -14,95 +9,74 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class CinemasController : ControllerBase
     {
-        private readonly CinemaDbContext _context;
+        private readonly CinemaService _cinemaService;
 
-        public CinemasController(CinemaDbContext context)
+        public CinemasController(CinemaService cinemaService)
         {
-            _context = context;
+            _cinemaService = cinemaService;
         }
 
-        // GET: api/Cinemas
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cinema>>> GetCinemas()
-        {
-            return await _context.Cinemas.ToListAsync();
-        }
-
-        // GET: api/Cinemas/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Cinema>> GetCinema(int id)
-        {
-            var cinema = await _context.Cinemas.FindAsync(id);
-
-            if (cinema == null)
-            {
-                return NotFound();
-            }
-
-            return cinema;
-        }
-
-        // PUT: api/Cinemas/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCinema(int id, Cinema cinema)
-        {
-            if (id != cinema.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(cinema).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CinemaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Cinemas
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // Add a new cinema
         [HttpPost]
-        public async Task<ActionResult<Cinema>> PostCinema(Cinema cinema)
+        public IActionResult AddCinema([FromBody] Cinema cinema)
         {
-            _context.Cinemas.Add(cinema);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCinema", new { id = cinema.Id }, cinema);
+            _cinemaService.AddCinema(cinema);
+            return Ok(new { Message = "Cinema added successfully" });
         }
 
-        // DELETE: api/Cinemas/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCinema(int id)
+        // Get all cinemas
+        [HttpGet]
+        public IActionResult GetAllCinemas()
         {
-            var cinema = await _context.Cinemas.FindAsync(id);
+            var cinemas = _cinemaService.GetAllCinemas();
+            return Ok(cinemas);
+        }
+
+        // Get cinema by ID
+        [HttpGet("{id}")]
+        public IActionResult GetCinemaById(int id)
+        {
+            var cinema = _cinemaService.GetCinemaById(id);
             if (cinema == null)
             {
-                return NotFound();
+                return NotFound(new { Message = "Cinema not found" });
             }
-
-            _context.Cinemas.Remove(cinema);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(cinema);
         }
 
-        private bool CinemaExists(int id)
+        // Update a cinema
+        [HttpPut("{id}")]
+        public IActionResult UpdateCinema(int id, [FromBody] Cinema cinema)
         {
-            return _context.Cinemas.Any(e => e.Id == id);
+            var existingCinema = _cinemaService.GetCinemaById(id);
+            if (existingCinema == null)
+            {
+                return NotFound(new { Message = "Cinema not found" });
+            }
+            cinema.Id = id; // Ensure the correct ID is used
+            _cinemaService.UpdateCinema(cinema);
+            return Ok(new { Message = "Cinema updated successfully" });
+        }
+
+        // Delete a cinema by ID
+        [HttpDelete("{id}")]
+        public IActionResult DeleteCinema(int id)
+        {
+            var cinema = _cinemaService.GetCinemaById(id);
+            if (cinema == null)
+            {
+                return NotFound(new { Message = "Cinema not found" });
+            }
+            _cinemaService.DeleteCinema(id);
+            return Ok(new { Message = "Cinema deleted successfully" });
+        }
+
+        // Search cinemas by name or location
+        [HttpGet("search")]
+        public IActionResult SearchCinemas([FromQuery] string searchTerm)
+        {
+            var cinemas = _cinemaService.SearchCinemas(searchTerm);
+            return Ok(cinemas);
         }
     }
 }

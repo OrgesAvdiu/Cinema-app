@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace CinemaApp.Repository
 {
-    public class CityRepository
+    public class CitiesRepository
     {
         private readonly CinemaDbContext _context;
 
-        public CityRepository(CinemaDbContext context)
+        public CitiesRepository(CinemaDbContext context)
         {
             _context = context;
         }

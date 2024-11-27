@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Cinema_app.model;
+using Cinema_app.services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CinemaApp.Models;
-using Cinema_app.model;
+using System.Collections.Generic;
 
 namespace Cinema_app.Controllers
 {
@@ -14,95 +9,74 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class CitiesController : ControllerBase
     {
-        private readonly CinemaDbContext _context;
+        private readonly CityService _cityService;
 
-        public CitiesController(CinemaDbContext context)
+        public CitiesController(CityService cityService)
         {
-            _context = context;
+            _cityService = cityService;
         }
 
-        // GET: api/Cities
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<City>>> GetCities()
-        {
-            return await _context.Cities.ToListAsync();
-        }
-
-        // GET: api/Cities/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<City>> GetCity(int id)
-        {
-            var city = await _context.Cities.FindAsync(id);
-
-            if (city == null)
-            {
-                return NotFound();
-            }
-
-            return city;
-        }
-
-        // PUT: api/Cities/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCity(int id, City city)
-        {
-            if (id != city.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(city).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CityExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Cities
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // Add a new city
         [HttpPost]
-        public async Task<ActionResult<City>> PostCity(City city)
+        public IActionResult AddCity([FromBody] City city)
         {
-            _context.Cities.Add(city);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCity", new { id = city.Id }, city);
+            _cityService.AddCity(city);
+            return Ok(new { Message = "City added successfully" });
         }
 
-        // DELETE: api/Cities/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCity(int id)
+        // Get all cities
+        [HttpGet]
+        public IActionResult GetAllCities()
         {
-            var city = await _context.Cities.FindAsync(id);
+            var cities = _cityService.GetAllCities();
+            return Ok(cities);
+        }
+
+        //Get city by ID
+        [HttpGet("{id}")]
+        public IActionResult GetCityById(int id)
+        {
+            var city = _cityService.GetCityById(id);
+            if(city == null)
+            {
+                return NotFound(new { Message = "City not found" });
+            }
+            retunr Ok(city);
+        }
+
+        // Update a city
+        [HttpPut("{id}")]
+        public IActionResult UpdateCIty(int id, [FromBody] City city)
+        {
+            var existingCity = _cityService.GetCityById(id);
+            if(existingCity == null)
+            {
+                retunr NotFound(new { Message = "City not found"});
+            }
+            city.Id = id;
+            _cityService.UpdateCity(city);
+            return Ok(new { Message = "City updated successfully" });
+        }
+
+        // Delete a city by ID
+        [HttpDelete("{id}")]
+        public IActionResult DeleteCity(int id)
+        {
+            var city = _cityService.GetCityById(id);
             if (city == null)
             {
-                return NotFound();
+                return NotFound(new { Message = "City not found" });
             }
-
-            _context.Cities.Remove(city);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            _cityService.DeleteCity(id);
+            return Ok(new { Message = "City deleted successfully" });
         }
 
-        private bool CityExists(int id)
+        // Search cities by name or state
+        [HttpGet("search")]
+        public IActionResult SearchCity([FromQuery] string searchTerm)
         {
-            return _context.Cities.Any(e => e.Id == id);
+            var cities = _cityService.SearchCity(searchTerm);
+            return Ok(cities);
         }
     }
 }

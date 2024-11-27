@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Cinema_app.model;
+using Cinema_app.services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CinemaApp.Models;
-using Cinema_app.model;
+using System.Collections.Generic;
 
 namespace Cinema_app.Controllers
 {
@@ -14,95 +9,74 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class OffersController : ControllerBase
     {
-        private readonly CinemaDbContext _context;
+        private readonly OffersService _offersService;
 
-        public OffersController(CinemaDbContext context)
+        public OffersController(OffersService offersService)
         {
-            _context = context;
+            _offersService = offersService;
         }
 
-        // GET: api/Offers
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Offers>>> GetOffers()
-        {
-            return await _context.Offers.ToListAsync();
-        }
-
-        // GET: api/Offers/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Offers>> GetOffers(int id)
-        {
-            var offers = await _context.Offers.FindAsync(id);
-
-            if (offers == null)
-            {
-                return NotFound();
-            }
-
-            return offers;
-        }
-
-        // PUT: api/Offers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOffers(int id, Offers offers)
-        {
-            if (id != offers.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(offers).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OffersExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Offers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // Add a new offer
         [HttpPost]
-        public async Task<ActionResult<Offers>> PostOffers(Offers offers)
+        public IActionResult AddOffers([FromBody] Offers offers)
         {
-            _context.Offers.Add(offers);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetOffers", new { id = offers.Id }, offers);
+            _offersService.AddOffers(offers);
+            return Ok(new { Message = "Offer added successfully" });
         }
 
-        // DELETE: api/Offers/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOffers(int id)
+        // Get all offers
+        [HttpGet]
+        public IActionResult GetAllOffers()
         {
-            var offers = await _context.Offers.FindAsync(id);
-            if (offers == null)
+            var offers = _offersService.GetAllOffers();
+            return Ok(offers);
+        }
+
+        // Get offer by ID
+        [HttpGet("{id}")]
+        public IActionResult GetOffersById(int id)
+        {
+            var offer = _offersService.GetOffersById(id);
+            if (offer == null)
             {
-                return NotFound();
+                return NotFound(new { Message = "Offer not found" });
             }
-
-            _context.Offers.Remove(offers);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(offer);
         }
 
-        private bool OffersExists(int id)
+        // Update an offer
+        [HttpPut("{id}")]
+        public IActionResult UpdateOffers(int id, [FromBody] Offers offers)
         {
-            return _context.Offers.Any(e => e.Id == id);
+            var existingOffer = _offersService.GetOffersById(id);
+            if (existingOffer == null)
+            {
+                return NotFound(new { Message = "Offer not found" });
+            }
+            offers.Id = id; // Ensure the correct ID is used
+            _offersService.UpdateOffers(offers);
+            return Ok(new { Message = "Offer updated successfully" });
+        }
+
+        // Delete an offer by ID
+        [HttpDelete("{id}")]
+        public IActionResult DeleteOffers(int id)
+        {
+            var offer = _offersService.GetOffersById(id);
+            if (offer == null)
+            {
+                return NotFound(new { Message = "Offer not found" });
+            }
+            _offersService.DeleteOffers(id);
+            return Ok(new { Message = "Offer deleted successfully" });
+        }
+
+        // Search offers by title or description
+        [HttpGet("search")]
+        public IActionResult SearchOffers([FromQuery] string searchTerm)
+        {
+            var offers = _offersService.SearchOffers(searchTerm);
+            return Ok(offers);
         }
     }
 }

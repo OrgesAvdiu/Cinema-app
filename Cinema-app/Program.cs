@@ -1,10 +1,11 @@
 using CinemaApp.Models;
 using Cinema_app.model;
-using Cinema_app.Services;  // Make sure to include the namespace for your services
+using Cinema_app.Services; // Namespace for your services and interfaces
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Cinema_app.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,12 +26,10 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<CinemaDbContext>()
     .AddDefaultTokenProviders();
 
-// Register custom services
-builder.Services.AddScoped<UserService>(); // Register UserService
-builder.Services.AddScoped<MovieService>(); // Register MovieService
-builder.Services.AddScoped<CategoryService>(); // Register CategoryService
-
-// Add other services here if needed, e.g., builder.Services.AddScoped<OtherService>();
+// Register services and their interfaces
+builder.Services.AddScoped<IUserService, UserService>(); // Register User interface and service
+builder.Services.AddScoped<IMovieService, MovieService>(); // Register Movie interface and service
+builder.Services.AddScoped<ICategoryService, CategoryService>(); // Register Category interface and service
 
 var app = builder.Build();
 

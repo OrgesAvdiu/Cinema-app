@@ -1,4 +1,5 @@
-﻿using Cinema_app.model;
+﻿using Cinema_app.Interface;
+using Cinema_app.model;
 using Cinema_app.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -9,14 +10,13 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly CategoryService _categoryService;
+        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(CategoryService categoryService)
+        public CategoriesController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }
 
-        // Add a new category
         [HttpPost]
         public IActionResult AddCategory([FromBody] Category category)
         {
@@ -24,7 +24,6 @@ namespace Cinema_app.Controllers
             return Ok(new { Message = "Category added successfully" });
         }
 
-        // Get all categories
         [HttpGet]
         public IActionResult GetAllCategories()
         {
@@ -32,7 +31,6 @@ namespace Cinema_app.Controllers
             return Ok(categories);
         }
 
-        // Get category by ID
         [HttpGet("{id}")]
         public IActionResult GetCategoryById(int id)
         {
@@ -44,7 +42,6 @@ namespace Cinema_app.Controllers
             return Ok(category);
         }
 
-        // Delete a category by ID
         [HttpDelete("{id}")]
         public IActionResult DeleteCategory(int id)
         {
@@ -52,7 +49,6 @@ namespace Cinema_app.Controllers
             return Ok(new { Message = "Category deleted successfully" });
         }
 
-        // Search categories by name
         [HttpGet("search")]
         public IActionResult SearchCategories([FromQuery] string searchTerm)
         {

@@ -3,10 +3,11 @@ using Cinema_app.model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using Cinema_app.Interface;
 
 namespace Cinema_app.Services
 {
-    public class CategoryService
+    public class CategoryService : ICategoryService
     {
         private readonly CinemaDbContext _context;
 
@@ -15,26 +16,22 @@ namespace Cinema_app.Services
             _context = context;
         }
 
-        // Add a new category
         public void AddCategory(Category category)
         {
             _context.Categories.Add(category);
             _context.SaveChanges();
         }
 
-        // Get all categories
         public List<Category> GetAllCategories()
         {
             return _context.Categories.ToList();
         }
 
-        // Get category by ID
         public Category GetCategoryById(int id)
         {
             return _context.Categories.FirstOrDefault(c => c.Id == id);
         }
 
-        // Delete a category by ID
         public void DeleteCategory(int id)
         {
             var category = _context.Categories.FirstOrDefault(c => c.Id == id);
@@ -45,7 +42,6 @@ namespace Cinema_app.Services
             }
         }
 
-        // Search categories by name
         public List<Category> SearchCategories(string searchTerm)
         {
             return _context.Categories

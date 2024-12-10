@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Cinema_app.model;
+﻿using Cinema_app.model;
 using Cinema_app.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Cinema_app.Controllers
 {
@@ -13,7 +12,7 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -24,7 +23,7 @@ namespace Cinema_app.Controllers
            SignInManager<User> signInManager,
            IConfiguration configuration,
            RoleManager<IdentityRole> roleManager,
-           UserService userService)
+           IUserService userService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -107,7 +106,7 @@ namespace Cinema_app.Controllers
         }
 
         [HttpGet("get-user-by-id/{id}")]
-        public IActionResult GetUserById(int id)
+        public IActionResult GetUserById(string id)
         {
             var user = _userService.GetUserById(id);
             if (user == null)
@@ -118,14 +117,14 @@ namespace Cinema_app.Controllers
         }
 
         [HttpPut("update-user-by-id/{id}")]
-        public IActionResult UpdateUserById(int id, [FromBody] List<string> preferences)
+        public IActionResult UpdateUserById(string id, [FromBody] List<string> preferences)
         {
             _userService.UpdateUserPreferences(id, preferences);
             return Ok("User preferences updated successfully.");
         }
 
         [HttpDelete("delete-user-by-id/{id}")]
-        public IActionResult DeleteUserById(int id)
+        public IActionResult DeleteUserById(string id)
         {
             var user = _userService.GetUserById(id);
             if (user == null)

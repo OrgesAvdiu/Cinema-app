@@ -1,13 +1,13 @@
 ﻿using Cinema_app.model;
 using CinemaApp.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 
 namespace Cinema_app.Services
 {
-    public class MovieService
+    public class MovieService : IMovieService
     {
         private readonly CinemaDbContext _context;
 
@@ -16,7 +16,6 @@ namespace Cinema_app.Services
             _context = context;
         }
 
-        // Add a new movie
         public void AddMovie(Movie movie)
         {
             if (movie == null)
@@ -36,21 +35,18 @@ namespace Cinema_app.Services
             _context.SaveChanges();
         }
 
-        // Get all movies
         public List<Movie> GetAllMovies()
         {
             return _context.Movies.Include(m => m.Categories).ToList();
         }
 
-        // Get a specific movie by Id
         public Movie GetMovieById(int movieId)
         {
             return _context.Movies
-                .Include(m => m.Categories) // Ensure Categories are loaded with the movie
+                .Include(m => m.Categories)
                 .FirstOrDefault(m => m.Id == movieId);
         }
 
-        // Delete a movie by Id
         public void DeleteMovieById(int movieId)
         {
             var movie = _context.Movies.FirstOrDefault(m => m.Id == movieId);
@@ -65,13 +61,11 @@ namespace Cinema_app.Services
             }
         }
 
-        // Get a list of all movie titles
         public IEnumerable<string> GetMovieTitles()
         {
             return _context.Movies.Select(m => m.Title).ToList();
         }
 
-        // Get movie Id by title
         public int GetMovieIdByTitle(string title)
         {
             var movie = _context.Movies.FirstOrDefault(m => m.Title == title);

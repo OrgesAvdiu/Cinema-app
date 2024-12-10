@@ -1,105 +1,47 @@
 ﻿using Cinema_app.model;
-using Microsoft.AspNetCore.Identity;
-using System;
+using CinemaApp.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Cinema_app.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
-        private readonly UserManager<User> _userManager;
+        private readonly CinemaDbContext _context;
 
-        public UserService(UserManager<User> userManager)
+        public UserService(CinemaDbContext context)
         {
-            _userManager = userManager;
+            _context = context;
         }
 
-        // Add a new user
-        public IdentityResult AddUser(User user, string password)
+        public IEnumerable<User> GetAllUsers()
         {
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
-
-            return _userManager.CreateAsync(user, password).Result; // Use .Result to get the result synchronously
+            return _context.Users.ToList();
         }
 
-        // Delete user by Id
-        public void DeleteUserById(int userId)
+        public User GetUserById(string id)
         {
-            var user = _userManager.FindByIdAsync(userId.ToString()).Result;
-            if (user != null)
-            {
-                _userManager.DeleteAsync(user).Wait(); // Use .Wait() for synchronous execution
-            }
-            else
-            {
-                throw new KeyNotFoundException($"User with ID {userId} not found.");
-            }
+            return _context.Users.FirstOrDefault(u => u.Id == id);
         }
 
-        // Get all users
-        public List<User> GetAllUsers()
+        public void UpdateUserPreferences(string id, List<string> preferences)
         {
-            return _userManager.Users.ToList();
-        }
-
-        // Get user by Id
-        public User GetUserById(int userId)
-        {
-            var user = _userManager.FindByIdAsync(userId.ToString()).Result;
-            if (user == null)
-                throw new KeyNotFoundException($"User with ID {userId} not found.");
-
-            return user;
-        }
-
-        // Get user by username
-        public User GetUserByName(string username)
-        {
-            var user = _userManager.FindByNameAsync(username).Result;
-            if (user == null)
-                throw new KeyNotFoundException($"User with username {username} not found.");
-
-            return user;
-        }
-
-        // Update user preferences
-        public void UpdateUserPreferences(int userId, List<string> preferences)
-        {
-            var user = _userManager.FindByIdAsync(userId.ToString()).Result;
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
             if (user != null)
             {
                 user.Preferences = preferences;
-                _userManager.UpdateAsync(user).Wait(); // Use .Wait() to perform synchronously
-            }
-            else
-            {
-                throw new KeyNotFoundException($"User with ID {userId} not found.");
+                _context.SaveChanges();
             }
         }
 
-        // Get a user's preferences
-        public List<string> GetUserPreferences(int userId)
+        public void DeleteUserById(string id)
         {
-            var user = _userManager.FindByIdAsync(userId.ToString()).Result;
-            if (user == null)
-                throw new KeyNotFoundException($"User with ID {userId} not found.");
-
-            return user?.Preferences ?? new List<string>();
-        }
-
-        // Get user Id by username
-        public int GetUserIdByName(string username)
-        {
-            var user = _userManager.FindByNameAsync(username).Result;
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
             if (user != null)
             {
-                return int.TryParse(user.Id, out var userId) ? userId : throw new InvalidCastException("User ID cannot be converted to an integer.");
-            }
-            else
-            {
-                throw new ArgumentException("User not found", nameof(username));
+                _context.Users.Remove(user);
+                _context.SaveChanges();
             }
         }
     }

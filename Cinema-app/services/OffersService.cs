@@ -1,10 +1,10 @@
-﻿using CinemaApp.Models;
-using Cinema_app.model;
+﻿using Cinema_app.model;
+using CinemaApp.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Cinema_app.services
+namespace Cinema_app.Services
 {
     public class OffersService
     {
@@ -15,58 +15,40 @@ namespace Cinema_app.services
             _context = context;
         }
 
-        // Add new Offers
-        public void AddOffers(Offers offers)
+        // Add a new offer
+        public void AddOffer(Offers offer)
         {
-            _context.Offers.Add(offers);
+            _context.Offers.Add(offer);
             _context.SaveChanges();
         }
 
-        //Get all Offers
+        // Get all offers
         public List<Offers> GetAllOffers()
         {
-            return _context.Offers.Include(o => o.Cinema).ToList();
+            return _context.Offers.Include(o => o.Cities).ToList();
         }
 
-        //Get offers by ID
-        public Offers GetOffersById(int id)
+        // Get an offer by ID
+        public Offers GetOfferById(int id)
         {
-            return _context.Offers.Include(o => o.Cinema).FirstOrDeafault(o => o.Id == id);
+            return _context.Offers.Include(o => o.Cities).FirstOrDefault(o => o.Id == id);
         }
 
-        // Update an Offer
-        public void UpdateOffers(Offers updatedOffers)
+        // Delete an offer by ID
+        public void DeleteOffer(int id)
         {
-            var existingOffers = _context.Offers.FirstOrDeafault(o => o.Id == updatedOffers.Id);
-            if(existingOffers != null)
+            var offer = _context.Offers.FirstOrDefault(o => o.Id == id);
+            if (offer != null)
             {
-                existingOffers.Title = updatedOffers.Title;
-                existingOffers.Description = updatedOffers.Description;
-                existingOffers.Discount = updatedOffers.Discount;
-                existingOffers.StartDate = updatedOffers.StartDate;
-                existingOffers.EndDate = updatedOffers.EndDate;
-                existingOffers.Cities = updatedOffers.Cities;
-
+                _context.Offers.Remove(offer);
                 _context.SaveChanges();
             }
         }
 
-        // Delete an Offer by ID
-        public void DeleteOffers(int id)
-        {
-            var offers = _context.Offers.FirstOrDefault(o => o.Id == id);
-            if (offers != null)
-            {
-                _context.Offers.Remove(offers);
-                _context.SaveChanges();
-            }
-        }
-
-        // Search Offers by title or description
+        // Search offers by title or description
         public List<Offers> SearchOffers(string searchTerm)
         {
             return _context.Offers
-                           .Include(o => o.Cinema)
                            .Where(o => o.Title.Contains(searchTerm) || o.Description.Contains(searchTerm))
                            .ToList();
         }

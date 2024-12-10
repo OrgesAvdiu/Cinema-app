@@ -1,5 +1,5 @@
 ﻿using Cinema_app.model;
-using Cinema_app.services;
+using Cinema_app.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
@@ -16,15 +16,20 @@ namespace Cinema_app.Controllers
             _offersService = offersService;
         }
 
-        // Add a new offer
+        // POST: api/offers
         [HttpPost]
-        public IActionResult AddOffers([FromBody] Offers offers)
+        public IActionResult AddOffer([FromBody] Offers offer)
         {
-            _offersService.AddOffers(offers);
+            if (offer == null)
+            {
+                return BadRequest(new { Message = "Offer cannot be null" });
+            }
+
+            _offersService.AddOffer(offer);
             return Ok(new { Message = "Offer added successfully" });
         }
 
-        // Get all offers
+        // GET: api/offers
         [HttpGet]
         public IActionResult GetAllOffers()
         {
@@ -32,11 +37,11 @@ namespace Cinema_app.Controllers
             return Ok(offers);
         }
 
-        // Get offer by ID
+        // GET: api/offers/{id}
         [HttpGet("{id}")]
-        public IActionResult GetOffersById(int id)
+        public IActionResult GetOfferById(int id)
         {
-            var offer = _offersService.GetOffersById(id);
+            var offer = _offersService.GetOfferById(id);
             if (offer == null)
             {
                 return NotFound(new { Message = "Offer not found" });
@@ -44,37 +49,29 @@ namespace Cinema_app.Controllers
             return Ok(offer);
         }
 
-        // Update an offer
-        [HttpPut("{id}")]
-        public IActionResult UpdateOffers(int id, [FromBody] Offers offers)
-        {
-            var existingOffer = _offersService.GetOffersById(id);
-            if (existingOffer == null)
-            {
-                return NotFound(new { Message = "Offer not found" });
-            }
-            offers.Id = id; // Ensure the correct ID is used
-            _offersService.UpdateOffers(offers);
-            return Ok(new { Message = "Offer updated successfully" });
-        }
-
-        // Delete an offer by ID
+        // DELETE: api/offers/{id}
         [HttpDelete("{id}")]
-        public IActionResult DeleteOffers(int id)
+        public IActionResult DeleteOffer(int id)
         {
-            var offer = _offersService.GetOffersById(id);
+            var offer = _offersService.GetOfferById(id);
             if (offer == null)
             {
                 return NotFound(new { Message = "Offer not found" });
             }
-            _offersService.DeleteOffers(id);
+
+            _offersService.DeleteOffer(id);
             return Ok(new { Message = "Offer deleted successfully" });
         }
 
-        // Search offers by title or description
+        // GET: api/offers/search
         [HttpGet("search")]
         public IActionResult SearchOffers([FromQuery] string searchTerm)
         {
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return BadRequest(new { Message = "Search term cannot be empty" });
+            }
+
             var offers = _offersService.SearchOffers(searchTerm);
             return Ok(offers);
         }

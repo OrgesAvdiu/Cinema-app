@@ -75,5 +75,30 @@ namespace Cinema_app.Controllers
             var offers = _offersService.SearchOffers(searchTerm);
             return Ok(offers);
         }
+
+        // PUT: api/offers/{id}
+        [HttpPut("{id}")]
+        public IActionResult UpdateOffer(int id, [FromBody] Offers offer)
+        {
+            if (offer == null)
+            {
+                return BadRequest(new { Message = "Offer data is required" });
+            }
+
+            try
+            {
+                _offersService.UpdateOffer(id, offer);
+                return Ok(new { Message = "Offer updated successfully" });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while updating the offer", Error = ex.Message });
+            }
+        }
     }
 }
+

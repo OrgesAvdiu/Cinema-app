@@ -10,27 +10,20 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class CitiesController : ControllerBase
     {
-        private readonly CityService _cityService;
+        private readonly ICityService _cityService;
 
-        public CitiesController(CityService cityService)
+        public CitiesController(ICityService cityService)
         {
             _cityService = cityService;
         }
 
-        // POST: api/cities
         [HttpPost]
         public IActionResult AddCity([FromBody] City city)
         {
-            if (city == null)
-            {
-                return BadRequest(new { Message = "City cannot be null" });
-            }
-
             _cityService.AddCity(city);
             return Ok(new { Message = "City added successfully" });
         }
 
-        // GET: api/cities
         [HttpGet]
         public IActionResult GetAllCities()
         {
@@ -38,7 +31,6 @@ namespace Cinema_app.Controllers
             return Ok(cities);
         }
 
-        // GET: api/cities/{id}
         [HttpGet("{id}")]
         public IActionResult GetCityById(int id)
         {
@@ -50,29 +42,45 @@ namespace Cinema_app.Controllers
             return Ok(city);
         }
 
-        // DELETE: api/cities/{id}
         [HttpDelete("{id}")]
         public IActionResult DeleteCity(int id)
         {
-            var city = _cityService.GetCityById(id);
-            if (city == null)
-            {
-                return NotFound(new { Message = "City not found" });
-            }
-
             _cityService.DeleteCity(id);
             return Ok(new { Message = "City deleted successfully" });
         }
 
-        // GET: api/cities/search
+        [HttpPut("{id}")]
+        public IActionResult UpdateCity(int id, [FromBody] City updatedCity)
+        {
+            if (updatedCity == null)
+            {
+                return BadRequest(new { Message = "City data is required" });
+            }
+
+            try
+            {
+                // Pass data to service to update city by ID
+                _cityService.UpdateCity(id, updatedCity);
+
+                return Ok(new { Message = "City updated successfully" });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Message = "An error occurred while updating the city",
+                    Error = ex.Message
+                });
+            }
+        }
+
         [HttpGet("search")]
         public IActionResult SearchCities([FromQuery] string searchTerm)
         {
-            if (string.IsNullOrEmpty(searchTerm))
-            {
-                return BadRequest(new { Message = "Search term cannot be empty" });
-            }
-
             var cities = _cityService.SearchCities(searchTerm);
             return Ok(cities);
         }

@@ -45,6 +45,34 @@ namespace Cinema_app.Services
             }
         }
 
+        // Update an offer by ID
+        public void UpdateOffer(int id, Offers updatedOffer)
+        {
+            var offer = _context.Offers.FirstOrDefault(o => o.Id == id);
+            if (offer == null)
+            {
+                throw new KeyNotFoundException($"Offer with ID {id} not found.");
+            }
+
+            // Update the offer properties
+            offer.Title = updatedOffer.Title ?? offer.Title;
+            offer.Description = updatedOffer.Description ?? offer.Description;
+            if (updatedOffer.StartDate != null)
+            {
+                offer.StartDate = updatedOffer.StartDate;
+            }
+
+            if (updatedOffer.EndDate != null)
+            {
+                offer.EndDate = updatedOffer.EndDate;
+            }
+
+            offer.Cities = updatedOffer.Cities ?? offer.Cities;
+
+            // Save changes
+            _context.SaveChanges();
+        }
+
         // Search offers by title or description
         public List<Offers> SearchOffers(string searchTerm)
         {
@@ -54,3 +82,4 @@ namespace Cinema_app.Services
         }
     }
 }
+

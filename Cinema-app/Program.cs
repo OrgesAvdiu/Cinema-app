@@ -31,7 +31,21 @@ builder.Services.AddScoped<IUserService, UserService>(); // Register User interf
 builder.Services.AddScoped<IMovieService, MovieService>(); // Register Movie interface and service
 builder.Services.AddScoped<ICategoryService, CategoryService>(); // Register Category interface and service
 
+// Add CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp", builder =>
+    {
+        builder.WithOrigins("http://localhost:3000") // React app URL
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
+
+// Enable CORS for the whole app
+app.UseCors("AllowReactApp");
 
 if (app.Environment.IsDevelopment())
 {
@@ -44,6 +58,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();

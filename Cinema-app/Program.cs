@@ -30,6 +30,8 @@ builder.Services.AddIdentity<User, IdentityRole>()
 builder.Services.AddScoped<IUserService, UserService>(); // Register User interface and service
 builder.Services.AddScoped<IMovieService, MovieService>(); // Register Movie interface and service
 builder.Services.AddScoped<ICategoryService, CategoryService>(); // Register Category interface and service
+builder.Services.AddScoped<ICity, City>(); //Register City interface and service
+builder.Services.AddScoped<IOffers, Offers>(); // Register Offers interface and service
 
 var app = builder.Build();
 

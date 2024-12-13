@@ -19,11 +19,11 @@ namespace Cinema_app.Controllers
         private readonly IConfiguration _configuration;
 
         public UsersController(
-           UserManager<User> userManager,
-           SignInManager<User> signInManager,
-           IConfiguration configuration,
-           RoleManager<IdentityRole> roleManager,
-           IUserService userService)
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            IConfiguration configuration,
+            RoleManager<IdentityRole> roleManager,
+            IUserService userService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -98,6 +98,13 @@ namespace Cinema_app.Controllers
             return Unauthorized("Invalid login attempt.");
         }
 
+        [HttpPost("add-user")]
+        public IActionResult AddUser([FromBody] User newUser)
+        {
+            _userService.AddUser(newUser);
+            return Ok(newUser);
+        }
+
         [HttpGet("get-all-users")]
         public IActionResult GetAllUsers()
         {
@@ -117,10 +124,26 @@ namespace Cinema_app.Controllers
         }
 
         [HttpPut("update-user-by-id/{id}")]
-        public IActionResult UpdateUserById(string id, [FromBody] List<string> preferences)
+        public IActionResult UpdateUserById(string id, [FromBody] User updatedUser)
         {
-            _userService.UpdateUserPreferences(id, preferences);
-            return Ok("User preferences updated successfully.");
+            if (updatedUser == null)
+            {
+                return BadRequest("Invalid user data.");
+            }
+
+            var user = _userService.GetUserById(id);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            user.Name = updatedUser.Name;
+            user.Email = updatedUser.Email;
+            user.Preferences = updatedUser.Preferences;
+
+            _userService.UpdateUser(user);
+
+            return Ok("User updated successfully.");
         }
 
         [HttpDelete("delete-user-by-id/{id}")]

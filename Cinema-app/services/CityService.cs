@@ -7,7 +7,7 @@ using Cinema_app.Interface;
 
 namespace Cinema_app.Services
 {
-    public class CityService 
+    public class CityService : ICityService
     {
         private readonly CinemaDbContext _context;
 

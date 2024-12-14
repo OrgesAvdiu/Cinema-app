@@ -30,8 +30,8 @@ builder.Services.AddIdentity<User, IdentityRole>()
 builder.Services.AddScoped<IUserService, UserService>(); // Register User interface and service
 builder.Services.AddScoped<IMovieService, MovieService>(); // Register Movie interface and service
 builder.Services.AddScoped<ICategoryService, CategoryService>(); // Register Category interface and service
-builder.Services.AddScoped<ICityService, CityService>(); //Register City interface and service
-builder.Services.AddScoped<IOffersService, OffersService>(); // Register Offers interface and service
+builder.Services.AddScoped<ICityService, CityService>(); //Register City interface and services
+builder.Services.AddScoped<IOffersService, OffersService>(); //Register Offers interface and services
 
 // Add CORS policy
 builder.Services.AddCors(options =>

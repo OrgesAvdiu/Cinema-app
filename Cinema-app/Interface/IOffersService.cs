@@ -1,7 +1,7 @@
 using Cinema_app.model;
 using System.Collections.Generic;
 
-namespace Cinema_app.Interface
+namespace Cinema_app.Services
 {
     public interface IOffersService
     {

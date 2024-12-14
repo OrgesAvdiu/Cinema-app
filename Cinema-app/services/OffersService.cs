@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Cinema_app.Services
 {
-    public class OffersService
+    public class OffersService : IOffersService
     {
         private readonly CinemaDbContext _context;
 

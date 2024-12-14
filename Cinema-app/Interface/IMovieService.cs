@@ -11,5 +11,6 @@ namespace Cinema_app.Services
         void DeleteMovieById(int movieId);
         IEnumerable<string> GetMovieTitles();
         int GetMovieIdByTitle(string title);
+        void UpdateMovie(int movieId, Movie movie);
     }
 }

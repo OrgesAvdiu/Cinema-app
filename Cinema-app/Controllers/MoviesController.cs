@@ -39,6 +39,30 @@ namespace Cinema_app.Controllers
             }
             return Ok(movie);
         }
+        // PUT: api/movie/{id}
+        [HttpPut("{id}")]
+        public IActionResult UpdateMovie(int id, [FromBody] Movie movie)
+        {
+            if (movie == null)
+            {
+                return BadRequest(new { Message = "Movie data is required" });
+            }
+
+            try
+            {
+                // Call the service to update the movie
+                _movieService.UpdateMovie(id, movie);
+                return Ok(new { Message = "Movie updated successfully" });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while updating the movie", Error = ex.Message });
+            }
+        }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteMovie(int id)

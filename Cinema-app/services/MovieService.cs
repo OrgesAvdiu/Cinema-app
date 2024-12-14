@@ -60,6 +60,31 @@ namespace Cinema_app.Services
                 throw new KeyNotFoundException($"Movie with ID {movieId} not found.");
             }
         }
+        public void UpdateMovie(int movieId, Movie movie)
+        {
+            if (movie == null)
+                throw new ArgumentNullException(nameof(movie));
+
+            // Find the existing movie in the database by its ID
+            var existingMovie = _context.Movies.FirstOrDefault(m => m.Id == movieId);
+            if (existingMovie == null)
+            {
+                throw new KeyNotFoundException($"Movie with ID {movieId} not found.");
+            }
+
+            // Update the properties of the existing movie
+            existingMovie.Title = movie.Title;
+            existingMovie.Description = movie.Description;
+            existingMovie.Duration = movie.Duration;
+            existingMovie.ReleaseDate = movie.ReleaseDate;
+            existingMovie.Rating = movie.Rating;
+            existingMovie.Language = movie.Language;
+            existingMovie.Categories = movie.Categories; // Assuming Categories is a navigation property
+
+            // Save the changes to the database
+            _context.SaveChanges();
+        }
+
 
         public IEnumerable<string> GetMovieTitles()
         {

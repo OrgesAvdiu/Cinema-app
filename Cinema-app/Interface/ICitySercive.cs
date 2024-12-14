@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Cinema_app.Interface
 {
-    public interface ICity
+    public interface ICityService
     {
         void AddCity(City city);
         List<City> GetAllCitites();

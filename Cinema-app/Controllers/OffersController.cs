@@ -9,9 +9,9 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class OffersController : ControllerBase
     {
-        private readonly OffersService _offersService;
+        private readonly IOffersService _offersService;
 
-        public OffersController(OffersService offersService)
+        public OffersController(IOffersService offersService)
         {
             _offersService = offersService;
         }

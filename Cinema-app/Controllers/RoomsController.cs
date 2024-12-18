@@ -1,7 +1,9 @@
 ﻿using Cinema_app.model;
-using Cinema_app.Services;
+using Cinema_app.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using Cinema_app.Interface;
+
 
 namespace Cinema_app.Controllers
 {
@@ -9,9 +11,9 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class RoomsController : ControllerBase
     {
-        private readonly RoomService _roomService;
+        private readonly IRoomsService _roomService;
 
-        public RoomsController(RoomService roomService)
+        public RoomsController(IRoomsService roomService)
         {
             _roomService = roomService;
         }
@@ -48,15 +50,23 @@ namespace Cinema_app.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateRoom(int id, [FromBody] Room room)
         {
+            if (room == null || id != room.Id)
+            {
+                return BadRequest(new { Message = "Invalid room data" });
+            }
+
             var existingRoom = _roomService.GetRoomById(id);
             if (existingRoom == null)
             {
                 return NotFound(new { Message = "Room not found" });
             }
-            room.Id = id; // Ensure the correct ID is used
-            _roomService.UpdateRoom(room);
+
+            // Call the UpdateRoom method with the id and updated room object
+            _roomService.UpdateRoom(id, room);
+
             return Ok(new { Message = "Room updated successfully" });
         }
+
 
         // Delete a room by ID
         [HttpDelete("{id}")]

@@ -1,17 +1,18 @@
 ﻿using Cinema_app.model;
-using Cinema_app.Services;
+using Cinema_app.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using Cinema_app.Interface;
 
 namespace Cinema_app.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CinemasController : ControllerBase
+    public class CinemaController : ControllerBase
     {
-        private readonly CinemaService _cinemaService;
+        private readonly ICinemaService _cinemaService;
 
-        public CinemasController(CinemaService cinemaService)
+        public CinemaController(ICinemaService cinemaService)
         {
             _cinemaService = cinemaService;
         }
@@ -48,15 +49,21 @@ namespace Cinema_app.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateCinema(int id, [FromBody] Cinema cinema)
         {
+            if (cinema == null || id != cinema.Id)
+            {
+                return BadRequest(new { Message = "Invalid cinema data" });
+            }
+
             var existingCinema = _cinemaService.GetCinemaById(id);
             if (existingCinema == null)
             {
                 return NotFound(new { Message = "Cinema not found" });
             }
-            cinema.Id = id; // Ensure the correct ID is used
-            _cinemaService.UpdateCinema(cinema);
+
+            _cinemaService.UpdateCinema(id, cinema); // Pass both id and cinema
             return Ok(new { Message = "Cinema updated successfully" });
         }
+
 
         // Delete a cinema by ID
         [HttpDelete("{id}")]

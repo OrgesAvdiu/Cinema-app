@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cinema_app.Interface;
 
-namespace Cinema_app.Services
+namespace Cinema_app.Interface
 {
     public class CityService : ICityService
     {

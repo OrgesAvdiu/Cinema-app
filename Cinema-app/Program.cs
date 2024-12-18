@@ -1,6 +1,6 @@
 using CinemaApp.Models;
 using Cinema_app.model;
-using Cinema_app.Services; // Namespace for your services and interfaces
+using Cinema_app.Interface; // Namespace for your services and interfaces
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
@@ -32,6 +32,11 @@ builder.Services.AddScoped<IMovieService, MovieService>(); // Register Movie int
 builder.Services.AddScoped<ICategoryService, CategoryService>(); // Register Category interface and service
 builder.Services.AddScoped<ICityService, CityService>(); //Register City interface and services
 builder.Services.AddScoped<IOffersService, OffersService>(); //Register Offers interface and services
+
+builder.Services.AddScoped<ICinemaService, CinemaService>(); // Register Cinema interface and service
+
+builder.Services.AddScoped<IRoomsService, RoomsService>(); // Register Rooms interface and service
+
 
 // Add CORS policy
 builder.Services.AddCors(options =>

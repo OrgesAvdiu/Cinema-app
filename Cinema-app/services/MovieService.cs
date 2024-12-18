@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Cinema_app.Services
+namespace Cinema_app.Interface
 {
     public class MovieService : IMovieService
     {

@@ -3,10 +3,11 @@ using Cinema_app.model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using Cinema_app.Interface;
 
-namespace Cinema_app.Services
+namespace Cinema_app.Interface
 {
-    public class CinemaService
+    public class CinemaService : ICinemaService
     {
         private readonly CinemaDbContext _context;
 
@@ -35,9 +36,9 @@ namespace Cinema_app.Services
         }
 
         // Update a cinema
-        public void UpdateCinema(Cinema updatedCinema)
+        public void UpdateCinema(int id, Cinema updatedCinema)
         {
-            var existingCinema = _context.Cinemas.FirstOrDefault(c => c.Id == updatedCinema.Id);
+            var existingCinema = _context.Cinemas.FirstOrDefault(c => c.Id == id);
             if (existingCinema != null)
             {
                 existingCinema.Name = updatedCinema.Name;
@@ -61,12 +62,11 @@ namespace Cinema_app.Services
         }
 
         // Search cinemas by name or location
-        public List<Cinema> SearchCinemas(string searchTerm)
+        public IEnumerable<Cinema> SearchCinemas(string searchTerm)
         {
             return _context.Cinemas
                            .Include(c => c.Rooms)
-                           .Where(c => c.Name.Contains(searchTerm) || c.Location.Contains(searchTerm))
-                           .ToList();
+                           .Where(c => c.Name.Contains(searchTerm) || c.Location.Contains(searchTerm));
         }
     }
 }

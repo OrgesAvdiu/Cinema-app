@@ -1,5 +1,5 @@
 ﻿using Cinema_app.model;
-using Cinema_app.Services;
+using Cinema_app.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 

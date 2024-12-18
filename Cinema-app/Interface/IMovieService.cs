@@ -1,7 +1,7 @@
 ﻿using Cinema_app.model;
 using System.Collections.Generic;
 
-namespace Cinema_app.Services
+namespace Cinema_app.Interface
 {
     public interface IMovieService
     {

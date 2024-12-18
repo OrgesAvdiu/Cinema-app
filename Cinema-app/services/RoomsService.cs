@@ -3,14 +3,16 @@ using Cinema_app.model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using Cinema_app.Interface; 
 
-namespace Cinema_app.Services
+
+namespace Cinema_app.Interface
 {
-    public class RoomService
+    public class RoomsService : IRoomsService
     {
         private readonly CinemaDbContext _context;
 
-        public RoomService(CinemaDbContext context)
+        public RoomsService(CinemaDbContext context)
         {
             _context = context;
         }
@@ -35,7 +37,7 @@ namespace Cinema_app.Services
         }
 
         // Update a room
-        public void UpdateRoom(Room updatedRoom)
+        public void UpdateRoom(int id, Room updatedRoom)
         {
             var existingRoom = _context.Rooms.FirstOrDefault(r => r.Id == updatedRoom.Id);
             if (existingRoom != null)
@@ -73,5 +75,6 @@ namespace Cinema_app.Services
                            .Where(r => r.Features.Contains(searchTerm))
                            .ToList();
         }
+
     }
 }

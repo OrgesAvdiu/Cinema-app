@@ -10,9 +10,9 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class CitiesController : ControllerBase
     {
-        private readonly CityService _cityService;
+        private readonly ICityService _cityService;
 
-        public CitiesController(CityService cityService)
+        public CitiesController(ICityService cityService)
         {
             _cityService = cityService;
         }

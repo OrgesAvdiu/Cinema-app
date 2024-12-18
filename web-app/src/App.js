@@ -1,24 +1,32 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Sidebar from './components/SideBar';
+import Navbar from './components/NavBar';
+import Dashboard from './components/Dashboard';
+import UserView from './pages/admins/UserView'; // Import UserView component
+import MovieView from './pages/admins/MovieView';
+import CategoryView from './pages/admins/CategoryView';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div style={{ display: 'flex' }}>
+        <Sidebar />
+        <div style={{ flexGrow: 1 }}>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            {/* Define the route for Users */}
+            <Route path="/users" element={<UserView />} />
+            {/* Define the route for Movies */}
+            <Route path="/movies" element={<MovieView />} />
+            {/* You can add more routes like Settings, etc. */}
+            <Route path="/categories" element={<CategoryView />} />
+            {/* You can add more routes like Settings, etc. */}
+          </Routes>
+        </div>
+      </div>
+    </Router>
   );
 }
 

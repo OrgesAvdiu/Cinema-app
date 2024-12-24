@@ -3,11 +3,11 @@ using Cinema_app.model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using Cinema_app.Interface;
+using Cinema_app.Repository;
 
-namespace Cinema_app.Interface
+namespace Cinema_app.Services
 {
-    public class CityService : ICityService
+    public class CityService : CityRepository
     {
         private readonly CinemaDbContext _context;
 
@@ -16,33 +16,27 @@ namespace Cinema_app.Interface
             _context = context;
         }
 
-        public void AddCity(City city)
+        // Add a new city
+        public void Add(City city)
         {
             _context.Cities.Add(city);
             _context.SaveChanges();
         }
 
-        public List<City> GetAllCities()
+        // Get all cities
+        public List<City> GetAll()
         {
             return _context.Cities.ToList();
         }
 
-        public City GetCityById(int id)
+        // Get a city by ID
+        public City GetById(int id)
         {
             return _context.Cities.FirstOrDefault(c => c.Id == id);
         }
 
-        public void DeleteCity(int id)
-        {
-            var city = _context.Cities.FirstOrDefault(c => c.Id == id);
-            if (city != null)
-            {
-                _context.Cities.Remove(city);
-                _context.SaveChanges();
-            }
-        }
-
-        public void UpdateCity(int id, City updatedCity)
+        // Update a city
+        public void Update(int id, City updatedCity)
         {
             var city = _context.Cities.FirstOrDefault(c => c.Id == id);
             if (city == null)
@@ -58,7 +52,19 @@ namespace Cinema_app.Interface
             _context.SaveChanges();
         }
 
-        public List<City> SearchCities(string searchTerm)
+        // Delete a city by ID
+        public void Delete(int id)
+        {
+            var city = _context.Cities.FirstOrDefault(c => c.Id == id);
+            if (city != null)
+            {
+                _context.Cities.Remove(city);
+                _context.SaveChanges();
+            }
+        }
+
+        // Search for cities based on the name
+        public List<City> Search(string searchTerm)
         {
             return _context.Cities
                            .Where(c => c.Name.Contains(searchTerm))

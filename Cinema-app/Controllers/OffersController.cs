@@ -1,7 +1,6 @@
 ﻿using Cinema_app.model;
-using Cinema_app.Interface;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+using Cinema_app.Services;
 
 namespace Cinema_app.Controllers
 {
@@ -9,9 +8,9 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class OffersController : ControllerBase
     {
-        private readonly IOffersService _offersService;
+        private readonly OffersService _offersService;
 
-        public OffersController(IOffersService offersService)
+        public OffersController(OffersService offersService)
         {
             _offersService = offersService;
         }
@@ -25,7 +24,7 @@ namespace Cinema_app.Controllers
                 return BadRequest(new { Message = "Offer cannot be null" });
             }
 
-            _offersService.AddOffer(offer);
+            _offersService.Add(offer); // Adjusted to Add based on service method
             return Ok(new { Message = "Offer added successfully" });
         }
 
@@ -33,7 +32,7 @@ namespace Cinema_app.Controllers
         [HttpGet]
         public IActionResult GetAllOffers()
         {
-            var offers = _offersService.GetAllOffers();
+            var offers = _offersService.GetAll(); // Adjusted to GetAll based on service method
             return Ok(offers);
         }
 
@@ -41,7 +40,7 @@ namespace Cinema_app.Controllers
         [HttpGet("{id}")]
         public IActionResult GetOfferById(int id)
         {
-            var offer = _offersService.GetOfferById(id);
+            var offer = _offersService.GetById(id); // Adjusted to GetById based on service method
             if (offer == null)
             {
                 return NotFound(new { Message = "Offer not found" });
@@ -53,13 +52,13 @@ namespace Cinema_app.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteOffer(int id)
         {
-            var offer = _offersService.GetOfferById(id);
+            var offer = _offersService.GetById(id); // Adjusted to GetById based on service method
             if (offer == null)
             {
                 return NotFound(new { Message = "Offer not found" });
             }
 
-            _offersService.DeleteOffer(id);
+            _offersService.Delete(id); // Adjusted to Delete based on service method
             return Ok(new { Message = "Offer deleted successfully" });
         }
 
@@ -72,7 +71,7 @@ namespace Cinema_app.Controllers
                 return BadRequest(new { Message = "Search term cannot be empty" });
             }
 
-            var offers = _offersService.SearchOffers(searchTerm);
+            var offers = _offersService.Search(searchTerm); // Adjusted to Search based on service method
             return Ok(offers);
         }
 
@@ -87,7 +86,7 @@ namespace Cinema_app.Controllers
 
             try
             {
-                _offersService.UpdateOffer(id, offer);
+                _offersService.Update(id, offer); // Adjusted to Update based on service method
                 return Ok(new { Message = "Offer updated successfully" });
             }
             catch (KeyNotFoundException ex)
@@ -101,4 +100,3 @@ namespace Cinema_app.Controllers
         }
     }
 }
-

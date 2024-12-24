@@ -3,12 +3,11 @@ using Cinema_app.model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using Cinema_app.Interface; 
+using Cinema_app.Repository;
 
-
-namespace Cinema_app.Interface
+namespace Cinema_app.Services
 {
-    public class RoomsService : IRoomsService
+    public class RoomsService : RoomRepository
     {
         private readonly CinemaDbContext _context;
 
@@ -18,28 +17,28 @@ namespace Cinema_app.Interface
         }
 
         // Add a new room
-        public void AddRoom(Room room)
+        public void Add(Room room)
         {
             _context.Rooms.Add(room);
             _context.SaveChanges();
         }
 
         // Get all rooms
-        public List<Room> GetAllRooms()
+        public List<Room> GetAll()
         {
             return _context.Rooms.Include(r => r.Cinema).ToList();
         }
 
         // Get room by ID
-        public Room GetRoomById(int id)
+        public Room GetById(int id)
         {
             return _context.Rooms.Include(r => r.Cinema).FirstOrDefault(r => r.Id == id);
         }
 
-        // Update a room
-        public void UpdateRoom(int id, Room updatedRoom)
+        // Update room by ID
+        public void Update(int id, Room updatedRoom)
         {
-            var existingRoom = _context.Rooms.FirstOrDefault(r => r.Id == updatedRoom.Id);
+            var existingRoom = _context.Rooms.FirstOrDefault(r => r.Id == id);
             if (existingRoom != null)
             {
                 existingRoom.RoomNumber = updatedRoom.RoomNumber;
@@ -51,8 +50,8 @@ namespace Cinema_app.Interface
             }
         }
 
-        // Delete a room by ID
-        public void DeleteRoom(int id)
+        // Delete room by ID
+        public void Delete(int id)
         {
             var room = _context.Rooms.FirstOrDefault(r => r.Id == id);
             if (room != null)
@@ -63,18 +62,17 @@ namespace Cinema_app.Interface
         }
 
         // Get rooms by Cinema ID
-        public List<Room> GetRoomsByCinemaId(int cinemaId)
+        public List<Room> GetByCinemaId(int cinemaId)
         {
             return _context.Rooms.Where(r => r.CinemaId == cinemaId).ToList();
         }
 
         // Search rooms by features
-        public List<Room> SearchRooms(string searchTerm)
+        public List<Room> Search(string searchTerm)
         {
             return _context.Rooms
                            .Where(r => r.Features.Contains(searchTerm))
                            .ToList();
         }
-
     }
 }

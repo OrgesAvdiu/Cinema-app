@@ -1,6 +1,5 @@
-﻿using Cinema_app.Interface;
-using Cinema_app.model;
-using Cinema_app.Interface;
+﻿using Cinema_app.model;
+using Cinema_app.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
@@ -10,31 +9,34 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class CitiesController : ControllerBase
     {
-        private readonly ICityService _cityService;
+        private readonly CityService _cityService;
 
-        public CitiesController(ICityService cityService)
+        public CitiesController(CityService cityService)
         {
             _cityService = cityService;
         }
 
+        // Add a new city
         [HttpPost]
         public IActionResult AddCity([FromBody] City city)
         {
-            _cityService.AddCity(city);
+            _cityService.Add(city); // Adjusted to Add based on service method
             return Ok(new { Message = "City added successfully" });
         }
 
+        // Get all cities
         [HttpGet]
         public IActionResult GetAllCities()
         {
-            var cities = _cityService.GetAllCities();
+            var cities = _cityService.GetAll(); // Adjusted to GetAll based on service method
             return Ok(cities);
         }
 
+        // Get city by ID
         [HttpGet("{id}")]
         public IActionResult GetCityById(int id)
         {
-            var city = _cityService.GetCityById(id);
+            var city = _cityService.GetById(id); // Adjusted to GetById based on service method
             if (city == null)
             {
                 return NotFound(new { Message = "City not found" });
@@ -42,46 +44,43 @@ namespace Cinema_app.Controllers
             return Ok(city);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteCity(int id)
-        {
-            _cityService.DeleteCity(id);
-            return Ok(new { Message = "City deleted successfully" });
-        }
-
+        // Update a city
         [HttpPut("{id}")]
         public IActionResult UpdateCity(int id, [FromBody] City updatedCity)
         {
-            if (updatedCity == null)
+            if (updatedCity == null || id != updatedCity.Id)
             {
-                return BadRequest(new { Message = "City data is required" });
+                return BadRequest(new { Message = "Invalid city data" });
             }
 
-            try
+            var existingCity = _cityService.GetById(id); // Adjusted to GetById based on service method
+            if (existingCity == null)
             {
-                // Pass data to service to update city by ID
-                _cityService.UpdateCity(id, updatedCity);
+                return NotFound(new { Message = "City not found" });
+            }
 
-                return Ok(new { Message = "City updated successfully" });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    Message = "An error occurred while updating the city",
-                    Error = ex.Message
-                });
-            }
+            _cityService.Update(id, updatedCity); // Adjusted to Update based on service method
+            return Ok(new { Message = "City updated successfully" });
         }
 
+        // Delete a city by ID
+        [HttpDelete("{id}")]
+        public IActionResult DeleteCity(int id)
+        {
+            var city = _cityService.GetById(id); // Adjusted to GetById based on service method
+            if (city == null)
+            {
+                return NotFound(new { Message = "City not found" });
+            }
+            _cityService.Delete(id); // Adjusted to Delete based on service method
+            return Ok(new { Message = "City deleted successfully" });
+        }
+
+        // Search cities by name
         [HttpGet("search")]
         public IActionResult SearchCities([FromQuery] string searchTerm)
         {
-            var cities = _cityService.SearchCities(searchTerm);
+            var cities = _cityService.Search(searchTerm); // Adjusted to Search based on service method
             return Ok(cities);
         }
     }

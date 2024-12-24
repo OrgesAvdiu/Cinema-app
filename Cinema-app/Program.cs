@@ -1,11 +1,11 @@
 using CinemaApp.Models;
 using Cinema_app.model;
-using Cinema_app.Interface; // Namespace for your services and interfaces
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Cinema_app.Interface;
+using Cinema_app.Repository;
+using Cinema_app.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,15 +27,13 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddDefaultTokenProviders();
 
 // Register services and their interfaces
-builder.Services.AddScoped<IUserService, UserService>(); // Register User interface and service
-builder.Services.AddScoped<IMovieService, MovieService>(); // Register Movie interface and service
-builder.Services.AddScoped<ICategoryService, CategoryService>(); // Register Category interface and service
-builder.Services.AddScoped<ICityService, CityService>(); //Register City interface and services
-builder.Services.AddScoped<IOffersService, OffersService>(); //Register Offers interface and services
-
-builder.Services.AddScoped<ICinemaService, CinemaService>(); // Register Cinema interface and service
-
-builder.Services.AddScoped<IRoomsService, RoomsService>(); // Register Rooms interface and service
+builder.Services.AddScoped<UserRepository, UserService>(); // Register User interface and service
+builder.Services.AddScoped<MovieRepository, MovieService>(); // Register Movie interface and service
+builder.Services.AddScoped<CategoryRepository, CategoryService>(); // Register Category interface and service
+builder.Services.AddScoped<CityRepository, CityService>(); //Register City interface and services
+builder.Services.AddScoped<OffersRepository, OffersService>(); //Register Offers interface and services
+builder.Services.AddScoped<CinemaRepository, CinemaService>(); // Register Cinema interface and service
+builder.Services.AddScoped<RoomRepository, RoomsService>(); // Register Rooms interface and service
 
 
 // Add CORS policy

@@ -3,11 +3,11 @@ using Cinema_app.model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using Cinema_app.Interface;
+using Cinema_app.Repository;
 
-namespace Cinema_app.Interface
+namespace Cinema_app.Services
 {
-    public class CinemaService : ICinemaService
+    public class CinemaService : CinemaRepository
     {
         private readonly CinemaDbContext _context;
 
@@ -16,27 +16,23 @@ namespace Cinema_app.Interface
             _context = context;
         }
 
-        // Add a new cinema
-        public void AddCinema(Cinema cinema)
+        public void Add(Cinema cinema)
         {
             _context.Cinemas.Add(cinema);
             _context.SaveChanges();
         }
 
-        // Get all cinemas
-        public List<Cinema> GetAllCinemas()
+        public List<Cinema> GetAll()
         {
             return _context.Cinemas.Include(c => c.Rooms).ToList();
         }
 
-        // Get cinema by ID
-        public Cinema GetCinemaById(int id)
+        public Cinema GetById(int id)
         {
             return _context.Cinemas.Include(c => c.Rooms).FirstOrDefault(c => c.Id == id);
         }
 
-        // Update a cinema
-        public void UpdateCinema(int id, Cinema updatedCinema)
+        public void Update(int id, Cinema updatedCinema)
         {
             var existingCinema = _context.Cinemas.FirstOrDefault(c => c.Id == id);
             if (existingCinema != null)
@@ -50,8 +46,7 @@ namespace Cinema_app.Interface
             }
         }
 
-        // Delete a cinema by ID
-        public void DeleteCinema(int id)
+        public void Delete(int id)
         {
             var cinema = _context.Cinemas.FirstOrDefault(c => c.Id == id);
             if (cinema != null)
@@ -61,8 +56,7 @@ namespace Cinema_app.Interface
             }
         }
 
-        // Search cinemas by name or location
-        public IEnumerable<Cinema> SearchCinemas(string searchTerm)
+        public IEnumerable<Cinema> Search(string searchTerm)
         {
             return _context.Cinemas
                            .Include(c => c.Rooms)

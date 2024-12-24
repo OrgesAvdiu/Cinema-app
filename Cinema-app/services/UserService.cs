@@ -3,10 +3,11 @@ using CinemaApp.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using Cinema_app.Repository;
 
-namespace Cinema_app.Interface
+namespace Cinema_app.Services
 {
-    public class UserService : IUserService
+    public class UserService : UserRepository
     {
         private readonly CinemaDbContext _context;
 
@@ -15,31 +16,17 @@ namespace Cinema_app.Interface
             _context = context;
         }
 
-        // Get all users synchronously
-        public IEnumerable<User> GetAllUsers()
+        public IEnumerable<User> GetAll()
         {
             return _context.Users.ToList(); // Using synchronous method
         }
 
-        // Get user by ID synchronously
-        public User GetUserById(string id)
+        public User GetById(string id)
         {
             return _context.Users.FirstOrDefault(u => u.Id == id); // Using synchronous method
         }
 
-        // Update user preferences synchronously
-        public void UpdateUserPreferences(string id, List<string> preferences)
-        {
-            var user = _context.Users.FirstOrDefault(u => u.Id == id);
-            if (user != null)
-            {
-                user.Preferences = preferences;
-                _context.SaveChanges(); // Save changes synchronously
-            }
-        }
-
-        // Update user synchronously
-        public void UpdateUser(User updatedUser)
+        public void Update(User updatedUser)
         {
             var user = _context.Users.FirstOrDefault(u => u.Id == updatedUser.Id);
             if (user != null)
@@ -56,8 +43,7 @@ namespace Cinema_app.Interface
             }
         }
 
-        // Delete user by ID synchronously
-        public void DeleteUserById(string id)
+        public void DeleteById(string id)
         {
             var user = _context.Users.FirstOrDefault(u => u.Id == id);
             if (user != null)
@@ -66,11 +52,28 @@ namespace Cinema_app.Interface
                 _context.SaveChanges(); // Save changes synchronously
             }
         }
-        // Add user synchronously
-        public void AddUser(User newUser)
+
+        public void Add(User newUser)
         {
             _context.Users.Add(newUser);
             _context.SaveChanges(); // Save changes synchronously
+        }
+
+        public void UpdatePreferences(string id, List<string> preferences)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            if (user != null)
+            {
+                user.Preferences = preferences;
+                _context.SaveChanges(); // Save changes synchronously
+            }
+        }
+
+        public List<User> Search(string searchTerm)
+        {
+            return _context.Users
+                           .Where(u => u.Name.Contains(searchTerm) || u.Email.Contains(searchTerm))
+                           .ToList();
         }
     }
 }

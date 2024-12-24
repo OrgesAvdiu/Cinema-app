@@ -1,9 +1,6 @@
 ﻿using Cinema_app.model;
-using Cinema_app.Interface;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using Cinema_app.Interface;
-
+using Cinema_app.Services;
 
 namespace Cinema_app.Controllers
 {
@@ -11,9 +8,9 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class RoomsController : ControllerBase
     {
-        private readonly IRoomsService _roomService;
+        private readonly RoomsService _roomService;
 
-        public RoomsController(IRoomsService roomService)
+        public RoomsController(RoomsService roomService)
         {
             _roomService = roomService;
         }
@@ -22,7 +19,12 @@ namespace Cinema_app.Controllers
         [HttpPost]
         public IActionResult AddRoom([FromBody] Room room)
         {
-            _roomService.AddRoom(room);
+            if (room == null)
+            {
+                return BadRequest(new { Message = "Room cannot be null" });
+            }
+
+            _roomService.Add(room); // Adjusted method name
             return Ok(new { Message = "Room added successfully" });
         }
 
@@ -30,7 +32,7 @@ namespace Cinema_app.Controllers
         [HttpGet]
         public IActionResult GetAllRooms()
         {
-            var rooms = _roomService.GetAllRooms();
+            var rooms = _roomService.GetAll(); // Adjusted method name
             return Ok(rooms);
         }
 
@@ -38,7 +40,7 @@ namespace Cinema_app.Controllers
         [HttpGet("{id}")]
         public IActionResult GetRoomById(int id)
         {
-            var room = _roomService.GetRoomById(id);
+            var room = _roomService.GetById(id); // Adjusted method name
             if (room == null)
             {
                 return NotFound(new { Message = "Room not found" });
@@ -55,29 +57,27 @@ namespace Cinema_app.Controllers
                 return BadRequest(new { Message = "Invalid room data" });
             }
 
-            var existingRoom = _roomService.GetRoomById(id);
+            var existingRoom = _roomService.GetById(id); // Adjusted method name
             if (existingRoom == null)
             {
                 return NotFound(new { Message = "Room not found" });
             }
 
-            // Call the UpdateRoom method with the id and updated room object
-            _roomService.UpdateRoom(id, room);
-
+            // Call the Update method
+            _roomService.Update(id, room); // Adjusted method name
             return Ok(new { Message = "Room updated successfully" });
         }
-
 
         // Delete a room by ID
         [HttpDelete("{id}")]
         public IActionResult DeleteRoom(int id)
         {
-            var room = _roomService.GetRoomById(id);
+            var room = _roomService.GetById(id); // Adjusted method name
             if (room == null)
             {
                 return NotFound(new { Message = "Room not found" });
             }
-            _roomService.DeleteRoom(id);
+            _roomService.Delete(id); // Adjusted method name
             return Ok(new { Message = "Room deleted successfully" });
         }
 
@@ -85,7 +85,7 @@ namespace Cinema_app.Controllers
         [HttpGet("byCinema/{cinemaId}")]
         public IActionResult GetRoomsByCinemaId(int cinemaId)
         {
-            var rooms = _roomService.GetRoomsByCinemaId(cinemaId);
+            var rooms = _roomService.GetByCinemaId(cinemaId); // Adjusted method name
             return Ok(rooms);
         }
 
@@ -93,7 +93,12 @@ namespace Cinema_app.Controllers
         [HttpGet("search")]
         public IActionResult SearchRooms([FromQuery] string searchTerm)
         {
-            var rooms = _roomService.SearchRooms(searchTerm);
+            if (string.IsNullOrEmpty(searchTerm))
+            {
+                return BadRequest(new { Message = "Search term cannot be empty" });
+            }
+
+            var rooms = _roomService.Search(searchTerm); // Adjusted method name
             return Ok(rooms);
         }
     }

@@ -1,8 +1,7 @@
 ﻿using Cinema_app.model;
-using Cinema_app.Interface;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using Cinema_app.Interface;
+using Cinema_app.Services;
 
 namespace Cinema_app.Controllers
 {
@@ -10,9 +9,9 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class CinemaController : ControllerBase
     {
-        private readonly ICinemaService _cinemaService;
+        private readonly CinemaService _cinemaService;
 
-        public CinemaController(ICinemaService cinemaService)
+        public CinemaController(CinemaService cinemaService)
         {
             _cinemaService = cinemaService;
         }
@@ -21,7 +20,7 @@ namespace Cinema_app.Controllers
         [HttpPost]
         public IActionResult AddCinema([FromBody] Cinema cinema)
         {
-            _cinemaService.AddCinema(cinema);
+            _cinemaService.Add(cinema); // Adjusted to Add based on service method
             return Ok(new { Message = "Cinema added successfully" });
         }
 
@@ -29,7 +28,7 @@ namespace Cinema_app.Controllers
         [HttpGet]
         public IActionResult GetAllCinemas()
         {
-            var cinemas = _cinemaService.GetAllCinemas();
+            var cinemas = _cinemaService.GetAll(); // Adjusted to GetAll based on service method
             return Ok(cinemas);
         }
 
@@ -37,7 +36,7 @@ namespace Cinema_app.Controllers
         [HttpGet("{id}")]
         public IActionResult GetCinemaById(int id)
         {
-            var cinema = _cinemaService.GetCinemaById(id);
+            var cinema = _cinemaService.GetById(id); // Adjusted to GetById based on service method
             if (cinema == null)
             {
                 return NotFound(new { Message = "Cinema not found" });
@@ -54,27 +53,26 @@ namespace Cinema_app.Controllers
                 return BadRequest(new { Message = "Invalid cinema data" });
             }
 
-            var existingCinema = _cinemaService.GetCinemaById(id);
+            var existingCinema = _cinemaService.GetById(id); // Adjusted to GetById based on service method
             if (existingCinema == null)
             {
                 return NotFound(new { Message = "Cinema not found" });
             }
 
-            _cinemaService.UpdateCinema(id, cinema); // Pass both id and cinema
+            _cinemaService.Update(id, cinema); // Adjusted to Update based on service method
             return Ok(new { Message = "Cinema updated successfully" });
         }
-
 
         // Delete a cinema by ID
         [HttpDelete("{id}")]
         public IActionResult DeleteCinema(int id)
         {
-            var cinema = _cinemaService.GetCinemaById(id);
+            var cinema = _cinemaService.GetById(id); // Adjusted to GetById based on service method
             if (cinema == null)
             {
                 return NotFound(new { Message = "Cinema not found" });
             }
-            _cinemaService.DeleteCinema(id);
+            _cinemaService.Delete(id); // Adjusted to Delete based on service method
             return Ok(new { Message = "Cinema deleted successfully" });
         }
 
@@ -82,7 +80,7 @@ namespace Cinema_app.Controllers
         [HttpGet("search")]
         public IActionResult SearchCinemas([FromQuery] string searchTerm)
         {
-            var cinemas = _cinemaService.SearchCinemas(searchTerm);
+            var cinemas = _cinemaService.Search(searchTerm); // Adjusted to Search based on service method
             return Ok(cinemas);
         }
     }

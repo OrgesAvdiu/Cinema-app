@@ -3,11 +3,11 @@ using Cinema_app.model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using Cinema_app.Interface;
+using Cinema_app.Repository;
 
-namespace Cinema_app.Interface
+namespace Cinema_app.Services
 {
-    public class CategoryService : ICategoryService
+    public class CategoryService : CategoryRepository
     {
         private readonly CinemaDbContext _context;
 
@@ -16,23 +16,23 @@ namespace Cinema_app.Interface
             _context = context;
         }
 
-        public void AddCategory(Category category)
+        public void Add(Category category)
         {
             _context.Categories.Add(category);
             _context.SaveChanges();
         }
 
-        public List<Category> GetAllCategories()
+        public List<Category> GetAll()
         {
             return _context.Categories.ToList();
         }
 
-        public Category GetCategoryById(int id)
+        public Category GetById(int id)
         {
             return _context.Categories.FirstOrDefault(c => c.Id == id);
         }
 
-        public void DeleteCategory(int id)
+        public void Delete(int id)
         {
             var category = _context.Categories.FirstOrDefault(c => c.Id == id);
             if (category != null)
@@ -42,7 +42,8 @@ namespace Cinema_app.Interface
             }
         }
 
-        public void UpdateCategory(int id, Category updatedCategory)
+        // Implementing Update method from CategoryRepository interface
+        public void Update(int id, Category updatedCategory)
         {
             var category = _context.Categories.FirstOrDefault(c => c.Id == id);
             if (category == null)
@@ -64,8 +65,7 @@ namespace Cinema_app.Interface
             _context.SaveChanges();
         }
 
-
-        public List<Category> SearchCategories(string searchTerm)
+        public List<Category> Search(string searchTerm)
         {
             return _context.Categories
                            .Where(c => c.Name.Contains(searchTerm))

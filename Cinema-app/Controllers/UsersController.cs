@@ -1,10 +1,9 @@
 ﻿using Cinema_app.model;
-using Cinema_app.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
 using System.Linq;
+using Cinema_app.Services;
 
 namespace Cinema_app.Controllers
 {
@@ -12,7 +11,7 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly UserService _userService;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -23,7 +22,7 @@ namespace Cinema_app.Controllers
             SignInManager<User> signInManager,
             IConfiguration configuration,
             RoleManager<IdentityRole> roleManager,
-            IUserService userService)
+            UserService userService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -101,21 +100,21 @@ namespace Cinema_app.Controllers
         [HttpPost("add-user")]
         public IActionResult AddUser([FromBody] User newUser)
         {
-            _userService.AddUser(newUser);
+            _userService.Add(newUser);  // Adjusted method name
             return Ok(newUser);
         }
 
         [HttpGet("get-all-users")]
         public IActionResult GetAllUsers()
         {
-            var allUsers = _userService.GetAllUsers();
+            var allUsers = _userService.GetAll();  // Adjusted method name
             return Ok(allUsers);
         }
 
         [HttpGet("get-user-by-id/{id}")]
         public IActionResult GetUserById(string id)
         {
-            var user = _userService.GetUserById(id);
+            var user = _userService.GetById(id);  // Adjusted method name
             if (user == null)
             {
                 return NotFound("User not found.");
@@ -131,7 +130,7 @@ namespace Cinema_app.Controllers
                 return BadRequest("Invalid user data.");
             }
 
-            var user = _userService.GetUserById(id);
+            var user = _userService.GetById(id);  // Adjusted method name
             if (user == null)
             {
                 return NotFound("User not found.");
@@ -141,7 +140,7 @@ namespace Cinema_app.Controllers
             user.Email = updatedUser.Email;
             user.Preferences = updatedUser.Preferences;
 
-            _userService.UpdateUser(user);
+            _userService.Update(user);  // Adjusted method name
 
             return Ok("User updated successfully.");
         }
@@ -149,13 +148,13 @@ namespace Cinema_app.Controllers
         [HttpDelete("delete-user-by-id/{id}")]
         public IActionResult DeleteUserById(string id)
         {
-            var user = _userService.GetUserById(id);
+            var user = _userService.GetById(id);  // Adjusted method name
             if (user == null)
             {
                 return NotFound("User not found.");
             }
 
-            _userService.DeleteUserById(id);
+            _userService.DeleteById(id);  // Adjusted method name
             return Ok("User deleted successfully.");
         }
     }

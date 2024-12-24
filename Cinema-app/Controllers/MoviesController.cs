@@ -1,5 +1,5 @@
 ﻿using Cinema_app.model;
-using Cinema_app.Interface;
+using Cinema_app.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cinema_app.Controllers
@@ -8,66 +8,70 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class MovieController : ControllerBase
     {
-        private readonly IMovieService _movieService;
+        private readonly MovieService _movieService;
 
-        public MovieController(IMovieService movieService)
+        public MovieController(MovieService movieService)
         {
             _movieService = movieService;
         }
 
+        // Add a new movie
         [HttpPost]
         public IActionResult AddMovie([FromBody] Movie movie)
         {
-            _movieService.AddMovie(movie);
+            _movieService.Add(movie); // Adjusted to Add based on service method
             return Ok(new { Message = "Movie added successfully" });
         }
 
+        // Get all movies
         [HttpGet]
         public IActionResult GetAllMovies()
         {
-            var movies = _movieService.GetAllMovies();
+            var movies = _movieService.GetAll(); // Adjusted to GetAll based on service method
             return Ok(movies);
         }
 
+        // Get movie by ID
         [HttpGet("{id}")]
         public IActionResult GetMovieById(int id)
         {
-            var movie = _movieService.GetMovieById(id);
+            var movie = _movieService.GetById(id); // Adjusted to GetById based on service method
             if (movie == null)
             {
                 return NotFound(new { Message = "Movie not found" });
             }
             return Ok(movie);
         }
-        // PUT: api/movie/{id}
+
+        // Update a movie
         [HttpPut("{id}")]
-        public IActionResult UpdateMovie(int id, [FromBody] Movie movie)
+        public IActionResult UpdateMovie(int id, [FromBody] Movie updatedMovie)
         {
-            if (movie == null)
+            if (updatedMovie == null || id != updatedMovie.Id)
             {
-                return BadRequest(new { Message = "Movie data is required" });
+                return BadRequest(new { Message = "Invalid movie data" });
             }
 
-            try
+            var existingMovie = _movieService.GetById(id); // Adjusted to GetById based on service method
+            if (existingMovie == null)
             {
-                // Call the service to update the movie
-                _movieService.UpdateMovie(id, movie);
-                return Ok(new { Message = "Movie updated successfully" });
+                return NotFound(new { Message = "Movie not found" });
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { Message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = "An error occurred while updating the movie", Error = ex.Message });
-            }
+
+            _movieService.Update(id, updatedMovie); // Adjusted to Update based on service method
+            return Ok(new { Message = "Movie updated successfully" });
         }
 
+        // Delete a movie by ID
         [HttpDelete("{id}")]
         public IActionResult DeleteMovie(int id)
         {
-            _movieService.DeleteMovieById(id);
+            var movie = _movieService.GetById(id); // Adjusted to GetById based on service method
+            if (movie == null)
+            {
+                return NotFound(new { Message = "Movie not found" });
+            }
+            _movieService.DeleteById(id); // Adjusted to Delete based on service method
             return Ok(new { Message = "Movie deleted successfully" });
         }
     }

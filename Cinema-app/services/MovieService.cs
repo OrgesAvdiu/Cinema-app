@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cinema_app.Repository;
 
-namespace Cinema_app.Interface
+namespace Cinema_app.Services
 {
-    public class MovieService : IMovieService
+    public class MovieService : MovieRepository
     {
         private readonly CinemaDbContext _context;
 
@@ -16,7 +17,8 @@ namespace Cinema_app.Interface
             _context = context;
         }
 
-        public void AddMovie(Movie movie)
+        // Add a new movie
+        public void Add(Movie movie)
         {
             if (movie == null)
                 throw new ArgumentNullException(nameof(movie));
@@ -35,19 +37,45 @@ namespace Cinema_app.Interface
             _context.SaveChanges();
         }
 
-        public List<Movie> GetAllMovies()
+        // Get all movies
+        public List<Movie> GetAll()
         {
             return _context.Movies.Include(m => m.Categories).ToList();
         }
 
-        public Movie GetMovieById(int movieId)
+        // Get a movie by ID
+        public Movie GetById(int movieId)
         {
             return _context.Movies
                 .Include(m => m.Categories)
                 .FirstOrDefault(m => m.Id == movieId);
         }
 
-        public void DeleteMovieById(int movieId)
+        // Update a movie
+        public void Update(int movieId, Movie movie)
+        {
+            if (movie == null)
+                throw new ArgumentNullException(nameof(movie));
+
+            var existingMovie = _context.Movies.FirstOrDefault(m => m.Id == movieId);
+            if (existingMovie == null)
+            {
+                throw new KeyNotFoundException($"Movie with ID {movieId} not found.");
+            }
+
+            existingMovie.Title = movie.Title;
+            existingMovie.Description = movie.Description;
+            existingMovie.Duration = movie.Duration;
+            existingMovie.ReleaseDate = movie.ReleaseDate;
+            existingMovie.Rating = movie.Rating;
+            existingMovie.Language = movie.Language;
+            existingMovie.Categories = movie.Categories;
+
+            _context.SaveChanges();
+        }
+
+        // Delete a movie
+        public void DeleteById(int movieId)
         {
             var movie = _context.Movies.FirstOrDefault(m => m.Id == movieId);
             if (movie != null)
@@ -60,38 +88,15 @@ namespace Cinema_app.Interface
                 throw new KeyNotFoundException($"Movie with ID {movieId} not found.");
             }
         }
-        public void UpdateMovie(int movieId, Movie movie)
-        {
-            if (movie == null)
-                throw new ArgumentNullException(nameof(movie));
 
-            // Find the existing movie in the database by its ID
-            var existingMovie = _context.Movies.FirstOrDefault(m => m.Id == movieId);
-            if (existingMovie == null)
-            {
-                throw new KeyNotFoundException($"Movie with ID {movieId} not found.");
-            }
-
-            // Update the properties of the existing movie
-            existingMovie.Title = movie.Title;
-            existingMovie.Description = movie.Description;
-            existingMovie.Duration = movie.Duration;
-            existingMovie.ReleaseDate = movie.ReleaseDate;
-            existingMovie.Rating = movie.Rating;
-            existingMovie.Language = movie.Language;
-            existingMovie.Categories = movie.Categories; // Assuming Categories is a navigation property
-
-            // Save the changes to the database
-            _context.SaveChanges();
-        }
-
-
-        public IEnumerable<string> GetMovieTitles()
+        // Get movie titles
+        public IEnumerable<string> GetTitles()
         {
             return _context.Movies.Select(m => m.Title).ToList();
         }
 
-        public int GetMovieIdByTitle(string title)
+        // Get movie ID by title
+        public int GetIdByTitle(string title)
         {
             var movie = _context.Movies.FirstOrDefault(m => m.Title == title);
             if (movie != null)

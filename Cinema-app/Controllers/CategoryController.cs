@@ -1,5 +1,5 @@
-﻿using Cinema_app.Interface;
-using Cinema_app.model;
+﻿using Cinema_app.model;
+using Cinema_app.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
@@ -9,9 +9,9 @@ namespace Cinema_app.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryService _categoryService;
+        private readonly CategoryService _categoryService;
 
-        public CategoriesController(ICategoryService categoryService)
+        public CategoriesController(CategoryService categoryService)
         {
             _categoryService = categoryService;
         }
@@ -19,21 +19,21 @@ namespace Cinema_app.Controllers
         [HttpPost]
         public IActionResult AddCategory([FromBody] Category category)
         {
-            _categoryService.AddCategory(category);
+            _categoryService.Add(category); // Changed to Add based on the service
             return Ok(new { Message = "Category added successfully" });
         }
 
         [HttpGet]
         public IActionResult GetAllCategories()
         {
-            var categories = _categoryService.GetAllCategories();
+            var categories = _categoryService.GetAll(); // Changed to GetAll based on the service
             return Ok(categories);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetCategoryById(int id)
         {
-            var category = _categoryService.GetCategoryById(id);
+            var category = _categoryService.GetById(id); // Changed to GetById based on the service
             if (category == null)
             {
                 return NotFound(new { Message = "Category not found" });
@@ -44,7 +44,7 @@ namespace Cinema_app.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteCategory(int id)
         {
-            _categoryService.DeleteCategory(id);
+            _categoryService.Delete(id); // Changed to Delete based on the service
             return Ok(new { Message = "Category deleted successfully" });
         }
 
@@ -59,7 +59,7 @@ namespace Cinema_app.Controllers
             try
             {
                 // Pass data to service
-                _categoryService.UpdateCategory(id, category);
+                _categoryService.Update(id, category); // Changed to Update based on the service
 
                 return Ok(new { Message = "Category updated successfully" });
             }
@@ -77,11 +77,10 @@ namespace Cinema_app.Controllers
             }
         }
 
-
         [HttpGet("search")]
         public IActionResult SearchCategories([FromQuery] string searchTerm)
         {
-            var categories = _categoryService.SearchCategories(searchTerm);
+            var categories = _categoryService.Search(searchTerm); // Changed to Search based on the service
             return Ok(categories);
         }
     }

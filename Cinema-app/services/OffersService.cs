@@ -3,10 +3,11 @@ using CinemaApp.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using Cinema_app.Repository;
 
-namespace Cinema_app.Interface
+namespace Cinema_app.Services
 {
-    public class OffersService : IOffersService
+    public class OffersService : OffersRepository
     {
         private readonly CinemaDbContext _context;
 
@@ -16,26 +17,26 @@ namespace Cinema_app.Interface
         }
 
         // Add a new offer
-        public void AddOffer(Offers offer)
+        public void Add(Offers offer)
         {
             _context.Offers.Add(offer);
             _context.SaveChanges();
         }
 
         // Get all offers
-        public List<Offers> GetAllOffers()
+        public List<Offers> GetAll()
         {
             return _context.Offers.Include(o => o.Cities).ToList();
         }
 
-        // Get an offer by ID
-        public Offers GetOfferById(int id)
+        // Get offer by ID
+        public Offers GetById(int id)
         {
             return _context.Offers.Include(o => o.Cities).FirstOrDefault(o => o.Id == id);
         }
 
         // Delete an offer by ID
-        public void DeleteOffer(int id)
+        public void Delete(int id)
         {
             var offer = _context.Offers.FirstOrDefault(o => o.Id == id);
             if (offer != null)
@@ -46,7 +47,7 @@ namespace Cinema_app.Interface
         }
 
         // Update an offer by ID
-        public void UpdateOffer(int id, Offers updatedOffer)
+        public void Update(int id, Offers updatedOffer)
         {
             var offer = _context.Offers.FirstOrDefault(o => o.Id == id);
             if (offer == null)
@@ -54,7 +55,6 @@ namespace Cinema_app.Interface
                 throw new KeyNotFoundException($"Offer with ID {id} not found.");
             }
 
-            // Update the offer properties
             offer.Title = updatedOffer.Title ?? offer.Title;
             offer.Description = updatedOffer.Description ?? offer.Description;
             if (updatedOffer.StartDate != null)
@@ -69,12 +69,11 @@ namespace Cinema_app.Interface
 
             offer.Cities = updatedOffer.Cities ?? offer.Cities;
 
-            // Save changes
             _context.SaveChanges();
         }
 
         // Search offers by title or description
-        public List<Offers> SearchOffers(string searchTerm)
+        public List<Offers> Search(string searchTerm)
         {
             return _context.Offers
                            .Where(o => o.Title.Contains(searchTerm) || o.Description.Contains(searchTerm))
@@ -82,4 +81,3 @@ namespace Cinema_app.Interface
         }
     }
 }
-

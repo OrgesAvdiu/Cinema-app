@@ -22,20 +22,66 @@ export const getMovieById = async (id) => {
   }
 };
 
-// Add a new movie
+// Add a new movie with image
 export const addMovie = async (movie) => {
+  const formData = new FormData();
+  formData.append('title', movie.title);
+  formData.append('description', movie.description);
+  formData.append('duration', movie.duration);
+  formData.append('releaseDate', movie.releaseDate);
+  formData.append('rating', movie.rating);
+  formData.append('language', movie.language);
+
+  // Ensure categories is correctly passed as an array
+  if (Array.isArray(movie.categories)) {
+    formData.append('categories', JSON.stringify(movie.categories));
+  } else {
+    formData.append('categories', JSON.stringify([])); // Fallback to empty array if not an array
+  }
+
+  if (movie.imageFile) {
+    formData.append('imageFile', movie.imageFile);
+  }
+
   try {
-    const response = await axios.post(`${API_URL}`, movie);
+    const response = await axios.post(`${API_URL}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : 'Error adding movie';
   }
 };
 
-// Update movie by ID
+// Update movie by ID with image
 export const updateMovieById = async (id, movie) => {
+  const formData = new FormData();
+  formData.append('title', movie.title);
+  formData.append('description', movie.description);
+  formData.append('duration', movie.duration);
+  formData.append('releaseDate', movie.releaseDate);
+  formData.append('rating', movie.rating);
+  formData.append('language', movie.language);
+
+  // Ensure categories is correctly passed as an array
+  if (Array.isArray(movie.categories)) {
+    formData.append('categories', JSON.stringify(movie.categories));
+  } else {
+    formData.append('categories', JSON.stringify([])); // Fallback to empty array if not an array
+  }
+
+  if (movie.imageFile) {
+    formData.append('imageFile', movie.imageFile);
+  }
+
   try {
-    const response = await axios.put(`${API_URL}/${id}`, movie);
+    const response = await axios.put(`${API_URL}/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : 'Error updating movie';

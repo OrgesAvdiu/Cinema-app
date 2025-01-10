@@ -1,40 +1,46 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Sidebar from './components/SideBar';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './components/NavBar';
+import Sidebar from './components/SideBar'; // Import Sidebar
 import Dashboard from './components/Dashboard';
-import UserView from './pages/admins/UserView'; // Import UserView component
+import HomePage from './pages/client/HomePage';
+import CinemaView from './pages/admins/CinemaView';
+import UserView from './pages/admins/UserView';
 import MovieView from './pages/admins/MovieView';
 import CategoryView from './pages/admins/CategoryView';
 import CityView from './pages/admins/CityView';
 import OffersView from './pages/admins/OffersView';
 
-function App() {
+const App = () => {
   return (
     <Router>
-      <div style={{ display: 'flex' }}>
-        <Sidebar />
-        <div style={{ flexGrow: 1 }}>
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            {/* Define the route for Users */}
-            <Route path="/users" element={<UserView />} />
-            {/* Define the route for Movies */}
-            <Route path="/movies" element={<MovieView />} />
-            {/* You can add more routes like Settings, etc. */}
-            <Route path="/categories" element={<CategoryView />} />
-            {/* You can add more routes like Settings, etc. */}
-            <Route path="/cities" element={<CityView />} />
-            {/* You can add more routes like Settings, etc. */}
-            <Route path="/offers" element={<OffersView />} />
-            {/* You can add more routes like Settings, etc. */}
-            
-          </Routes>
-        </div>
-      </div>
+      <Navbar />
+      <MainContent />
     </Router>
   );
-}
+};
+
+const MainContent = () => {
+  const location = useLocation();
+
+  return (
+    <div style={{ display: 'flex' }}>
+      {/* Conditionally render Sidebar except on HomePage */}
+      {location.pathname !== '/' && <Sidebar />}
+      <div style={{ flex: 1, padding: '20px' }}> {/* Main content area */}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/cinema" element={<CinemaView />} />
+          <Route path="/users" element={<UserView />} />
+          <Route path="/movies" element={<MovieView />} />
+          <Route path="/categories" element={<CategoryView />} />
+          <Route path="/cities" element={<CityView />} />
+          <Route path="/offers" element={<OffersView />} />
+        </Routes>
+      </div>
+    </div>
+  );
+};
 
 export default App;

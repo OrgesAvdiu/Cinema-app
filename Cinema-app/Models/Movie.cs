@@ -10,6 +10,8 @@
         public double Rating { get; set; }
         public string Language { get; set; }
         public List<Category> Categories { get; set; } = new List<Category>();
+      
+        public String imageUrl { get; set; }
     }
 
 }

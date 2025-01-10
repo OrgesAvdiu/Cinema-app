@@ -31,7 +31,8 @@ namespace Cinema_app.Services
                 ReleaseDate = movie.ReleaseDate,
                 Rating = movie.Rating,
                 Language = movie.Language,
-                Categories = movie.Categories
+                Categories = movie.Categories,
+                imageUrl = movie.imageUrl
             };
             _context.Movies.Add(newMovie);
             _context.SaveChanges();
@@ -70,6 +71,7 @@ namespace Cinema_app.Services
             existingMovie.Rating = movie.Rating;
             existingMovie.Language = movie.Language;
             existingMovie.Categories = movie.Categories;
+            existingMovie.imageUrl = movie.imageUrl;
 
             _context.SaveChanges();
         }

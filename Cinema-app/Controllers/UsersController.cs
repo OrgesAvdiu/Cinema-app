@@ -18,11 +18,11 @@ namespace Cinema_app.Controllers
         private readonly IConfiguration _configuration;
 
         public UsersController(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager,
-            IConfiguration configuration,
-            RoleManager<IdentityRole> roleManager,
-            UserService userService)
+         UserManager<User> userManager,
+         SignInManager<User> signInManager,
+         IConfiguration configuration,
+         RoleManager<IdentityRole> roleManager,
+         UserService userService)
         {
             _userManager = userManager;
             _signInManager = signInManager;

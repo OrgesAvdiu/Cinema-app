@@ -23,6 +23,9 @@ namespace Cinema_app.Controllers
             return Ok(new { Message = "Movie added successfully" });
         }
 
+
+
+
         // Get all movies
         [HttpGet]
         public IActionResult GetAllMovies()

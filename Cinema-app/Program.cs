@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Cinema_app.Repository;
 using Cinema_app.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,22 +18,21 @@ builder.Services.AddSwaggerGen(c =>
 
 // Add DbContext with SQL Server configuration
 builder.Services.AddDbContext<CinemaDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DatabaseConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DatabaseConnection"))); // Check your appsettings.json for the correct connection string
 
 // Register Identity services
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<CinemaDbContext>()
     .AddDefaultTokenProviders();
 
-// Register services and their interfaces
-builder.Services.AddScoped<UserRepository, UserService>(); // Register User interface and service
-builder.Services.AddScoped<MovieRepository, MovieService>(); // Register Movie interface and service
-builder.Services.AddScoped<CategoryRepository, CategoryService>(); // Register Category interface and service
-builder.Services.AddScoped<CityRepository, CityService>(); //Register City interface and services
-builder.Services.AddScoped<OffersRepository, OffersService>(); //Register Offers interface and services
-builder.Services.AddScoped<CinemaRepository, CinemaService>(); // Register Cinema interface and service
-builder.Services.AddScoped<RoomRepository, RoomsService>(); // Register Rooms interface and service
-
+// Register services
+builder.Services.AddScoped<UserService>(); // Directly register UserService
+builder.Services.AddScoped<MovieService>(); // Register MovieService directly
+builder.Services.AddScoped<CategoryService>(); // Register CategoryService directly
+builder.Services.AddScoped<CityService>(); // Register CityService directly
+builder.Services.AddScoped<OffersService>(); // Register OffersService directly
+builder.Services.AddScoped<CinemaService>(); // Register CinemaService directly
+builder.Services.AddScoped<RoomsService>(); // Register RoomService directly
 
 // Add CORS policy
 builder.Services.AddCors(options =>
@@ -61,6 +59,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger"; // Set this if you want to access at /swagger
     });
 }
+
 
 app.UseHttpsRedirection();
 

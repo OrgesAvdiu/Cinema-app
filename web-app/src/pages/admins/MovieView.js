@@ -20,7 +20,6 @@ const MovieView = () => {
   });
   const [openModal, setOpenModal] = useState(false);
 
-  // Example categories (you can fetch these from your API if needed)
   const [categories, setCategories] = useState([
     'Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Romance',
   ]);
@@ -45,6 +44,7 @@ const MovieView = () => {
   const handleOpenModal = (movie = null) => {
     setMovieToEdit(movie);
     if (movie) {
+      // Ensuring categories are correctly set when editing a movie
       setNewMovie({ ...movie, imageFile: null });
     } else {
       setNewMovie({
@@ -55,7 +55,7 @@ const MovieView = () => {
         rating: '',
         language: '',
         imageName: '',
-        categories: [],
+        categories: [], // Clear categories for a new movie
         imageFile: null,
       });
     }
@@ -78,8 +78,8 @@ const MovieView = () => {
     if (file) {
       setNewMovie({
         ...newMovie,
-        imageName: file.name, // Store the file name
-        imageFile: file, // Store the actual file for upload
+        imageName: file.name, 
+        imageFile: file,
       });
     }
   };
@@ -88,7 +88,7 @@ const MovieView = () => {
     try {
       const addedMovie = await addMovie({
         ...newMovie,
-        categories: newMovie.categories, // Ensuring categories are passed
+        categories: newMovie.categories, // Make sure categories are passed
       });
       setMovies([...movies, addedMovie]);
       setNewMovie({
@@ -112,7 +112,7 @@ const MovieView = () => {
     try {
       await updateMovieById(movieToEdit.id, {
         ...newMovie,
-        categories: newMovie.categories, // Ensuring categories are passed
+        categories: newMovie.categories, 
       });
       setMovies(movies.map((movie) => (movie.id === movieToEdit.id ? { ...movie, ...newMovie } : movie)));
       setMovieToEdit(null);
@@ -169,8 +169,6 @@ const MovieView = () => {
                 <TableCell>{movie.title}</TableCell>
                 <TableCell>{movie.description}</TableCell>
                 <TableCell>{movie.categories ? movie.categories.join(', ') : 'No Categories'}</TableCell>
-
-
                 <TableCell>
                   <Button variant="outlined" color="primary" onClick={() => handleOpenModal(movie)}>
                     Edit
@@ -256,24 +254,23 @@ const MovieView = () => {
 
           {/* Categories Dropdown */}
           <FormControl fullWidth style={{ marginBottom: 20 }}>
-  <InputLabel>Categories</InputLabel>
-  <Select
-    label="Categories"
-    multiple
-    value={newMovie.categories}
-    onChange={(e) => {
-      setNewMovie({ ...newMovie, categories: e.target.value });
-    }}
-    renderValue={(selected) => selected.join(', ')}
-  >
-    {categories.map((category) => (
-      <MenuItem key={category} value={category}>
-        {category}
-      </MenuItem>
-    ))}
-  </Select>
-</FormControl>
-
+            <InputLabel>Categories</InputLabel>
+            <Select
+              label="Categories"
+              multiple
+              value={newMovie.categories}
+              onChange={(e) => {
+                setNewMovie({ ...newMovie, categories: e.target.value });
+              }}
+              renderValue={(selected) => selected.join(', ')}
+            >
+              {categories.map((category) => (
+                <MenuItem key={category} value={category}>
+                  {category}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
           {/* File Input for Image */}
           <input
@@ -282,9 +279,7 @@ const MovieView = () => {
             accept="image/*"
             onChange={handleFileChange}
           />
-          {newMovie.imageName && (
-            <p>Selected File: {newMovie.imageName}</p>
-          )}
+          {newMovie.imageName && <p>Selected File: {newMovie.imageName}</p>}
 
           <Button
             variant="contained"

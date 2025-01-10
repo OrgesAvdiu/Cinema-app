@@ -10,6 +10,7 @@ import MovieView from './pages/admins/MovieView';
 import CategoryView from './pages/admins/CategoryView';
 import CityView from './pages/admins/CityView';
 import OffersView from './pages/admins/OffersView';
+import RoomView from './pages/admins/RoomView';
 
 const App = () => {
   return (
@@ -37,6 +38,7 @@ const MainContent = () => {
           <Route path="/categories" element={<CategoryView />} />
           <Route path="/cities" element={<CityView />} />
           <Route path="/offers" element={<OffersView />} />
+          <Route path="/room" element={<RoomView />} />
         </Routes>
       </div>
     </div>

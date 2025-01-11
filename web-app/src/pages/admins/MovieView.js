@@ -76,10 +76,12 @@ const MovieView = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      const imageUrl = URL.createObjectURL(file); // Create a temporary URL for the image
       setNewMovie({
         ...newMovie,
-        imageName: file.name, 
+        imageName: file.name,
         imageFile: file,
+        imageUrl: imageUrl, // Set imageUrl
       });
     }
   };
@@ -88,7 +90,7 @@ const MovieView = () => {
     try {
       const addedMovie = await addMovie({
         ...newMovie,
-        categories: newMovie.categories, // Make sure categories are passed
+        categories: newMovie.categories,
       });
       setMovies([...movies, addedMovie]);
       setNewMovie({
@@ -101,13 +103,13 @@ const MovieView = () => {
         imageName: '',
         categories: [],
         imageFile: null,
+        imageUrl: '', // Reset imageUrl
       });
       handleCloseModal();
     } catch (err) {
-      setError('Failed to add movie');
+      setError(JSON.stringify(err));
     }
   };
-
   const handleUpdateMovie = async () => {
     try {
       await updateMovieById(movieToEdit.id, {

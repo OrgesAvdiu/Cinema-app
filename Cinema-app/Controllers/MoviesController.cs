@@ -17,10 +17,18 @@ namespace Cinema_app.Controllers
 
         // Add a new movie
         [HttpPost]
-        public IActionResult AddMovie([FromBody] Movie movie)
+        [Consumes("multipart/form-data")]
+        public IActionResult AddMovie([FromForm] Movie movie)
         {
-            _movieService.Add(movie); // Adjusted to Add based on service method
-            return Ok(new { Message = "Movie added successfully" });
+            try
+            {
+                _movieService.Add(movie);
+                return Ok(new { Message = "Movie added successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while adding the movie", Error = ex.Message });
+            }
         }
 
 

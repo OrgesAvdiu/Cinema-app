@@ -31,12 +31,12 @@ export const addMovie = async (movie) => {
   formData.append('releaseDate', movie.releaseDate);
   formData.append('rating', movie.rating);
   formData.append('language', movie.language);
+  formData.append('imageUrl', movie.imageUrl); // Ensure imageUrl is included
 
-  // Ensure categories is correctly passed as an array
   if (Array.isArray(movie.categories)) {
     formData.append('categories', JSON.stringify(movie.categories));
   } else {
-    formData.append('categories', JSON.stringify([])); // Fallback to empty array if not an array
+    formData.append('categories', JSON.stringify([]));
   }
 
   if (movie.imageFile) {

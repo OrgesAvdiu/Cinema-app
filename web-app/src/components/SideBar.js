@@ -6,7 +6,7 @@ const Sidebar = () => {
   return (
     <div style={{ width: '200px', backgroundColor: '#f4f4f4', height: '100vh', padding: '10px' }}>
       <List>
-        <ListItem button component={Link} to="/">
+        <ListItem button component={Link} to="/dashboard">
           <ListItemText primary="Dashboard" />
         </ListItem>
         <ListItem button component={Link} to="/users">
@@ -26,6 +26,12 @@ const Sidebar = () => {
         </ListItem>
         <ListItem button component={Link} to="/offers">
           <ListItemText primary="Offers" />
+        </ListItem>
+        <ListItem button component={Link} to="/room">
+          <ListItemText primary="Room" />
+        </ListItem>
+        <ListItem button component={Link} to="/cinema">
+          <ListItemText primary="Cinema" />
         </ListItem>
       </List>
     </div>

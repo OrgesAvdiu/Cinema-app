@@ -15,7 +15,7 @@ const MovieView = () => {
     rating: '',
     language: '',
     imageName: '',
-    categories: [],
+    categories: [], // Array to hold selected categories
     imageFile: null,
   });
   const [openModal, setOpenModal] = useState(false);
@@ -35,11 +35,8 @@ const MovieView = () => {
         setLoading(false);
       }
     };
-  
     fetchMovies();
   }, []);
-  
-  console.log("New Movie Categories: ", newMovie.categories);
 
   const handleOpenModal = (movie = null) => {
     setMovieToEdit(movie);
@@ -78,7 +75,7 @@ const MovieView = () => {
     if (file) {
       setNewMovie({
         ...newMovie,
-        imageName: file.name, 
+        imageName: file.name,
         imageFile: file,
       });
     }
@@ -99,7 +96,7 @@ const MovieView = () => {
         rating: '',
         language: '',
         imageName: '',
-        categories: [],
+        categories: [], // Clear categories
         imageFile: null,
       });
       handleCloseModal();
@@ -112,7 +109,7 @@ const MovieView = () => {
     try {
       await updateMovieById(movieToEdit.id, {
         ...newMovie,
-        categories: newMovie.categories, 
+        categories: newMovie.categories,
       });
       setMovies(movies.map((movie) => (movie.id === movieToEdit.id ? { ...movie, ...newMovie } : movie)));
       setMovieToEdit(null);
@@ -124,7 +121,7 @@ const MovieView = () => {
         rating: '',
         language: '',
         imageName: '',
-        categories: [],
+        categories: [], // Clear categories after update
         imageFile: null,
       });
       handleCloseModal();
@@ -140,6 +137,15 @@ const MovieView = () => {
     } catch (err) {
       setError('Failed to delete movie');
     }
+  };
+  const handleCategoryChange = (event, movieId) => {
+    const updatedMovies = movies.map((movie) => {
+      if (movie.id === movieId) {
+        return { ...movie, categories: event.target.value };
+      }
+      return movie;
+    });
+    setMovies(updatedMovies);
   };
 
   if (loading) return <CircularProgress />;
@@ -168,7 +174,24 @@ const MovieView = () => {
                 <TableCell>{movie.id}</TableCell>
                 <TableCell>{movie.title}</TableCell>
                 <TableCell>{movie.description}</TableCell>
-                <TableCell>{movie.categories ? movie.categories.join(', ') : 'No Categories'}</TableCell>
+                <TableCell>
+                  <FormControl fullWidth>
+                    <InputLabel>Categories</InputLabel>
+                    <Select
+                      label="Categories"
+                      multiple
+                      value={movie.categories}
+                      onChange={(e) => handleCategoryChange(e, movie.id)}
+                      renderValue={(selected) => selected.join(', ')}
+                    >
+                      {categories.map((category) => (
+                        <MenuItem key={category} value={category}>
+                          {category}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </TableCell>
                 <TableCell>
                   <Button variant="outlined" color="primary" onClick={() => handleOpenModal(movie)}>
                     Edit

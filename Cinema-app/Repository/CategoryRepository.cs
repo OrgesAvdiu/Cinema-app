@@ -9,6 +9,7 @@ namespace Cinema_app.Repository
         Category GetById(int id);
         void Delete(int id);
         void Update(int id, Category updatedCategory);
+        int GetCategoryIdByName(string categoryName);
         List<Category> Search(string searchTerm);
     }
 }

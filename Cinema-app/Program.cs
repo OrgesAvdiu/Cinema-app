@@ -6,10 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Cinema_app.Services;
 
-//using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -30,15 +26,15 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddDefaultTokenProviders();
 
 // Register services
-builder.Services.AddScoped<UserService>(); // Directly register UserService
-builder.Services.AddScoped<MovieService>(); // Register MovieService directly
-builder.Services.AddScoped<CategoryService>(); // Register CategoryService directly
-builder.Services.AddScoped<CityService>(); // Register CityService directly
-builder.Services.AddScoped<OffersService>(); // Register OffersService directly
-builder.Services.AddScoped<CinemaService>(); // Register CinemaService directly
-builder.Services.AddScoped<RoomsService>(); // Register RoomService directly
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<MovieService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<CityService>();
+builder.Services.AddScoped<OffersService>();
+builder.Services.AddScoped<CinemaService>();
+builder.Services.AddScoped<RoomsService>();
 
-// Add CORS policy
+// Add CORS policy to allow React app to make requests
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", builder =>
@@ -54,6 +50,8 @@ var app = builder.Build();
 // Enable CORS for the whole app
 app.UseCors("AllowReactApp");
 
+app.UseStaticFiles();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -64,9 +62,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();

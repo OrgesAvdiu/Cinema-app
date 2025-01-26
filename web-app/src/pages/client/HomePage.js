@@ -16,6 +16,7 @@ const HomePage = () => {
     // Fetch movies from the back-end API
     axios.get("http://localhost:5000/api/movie")
       .then(response => {
+        console.log("Movies fetched:", response.data); // Log the fetched data
         setMovies(response.data); // Set the movies state with the data from the API
       })
       .catch(error => {
@@ -30,7 +31,6 @@ const HomePage = () => {
   const prevSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex - 1 + movies.length) % movies.length);
   };
-
   const styles = {
     container: {
       fontFamily: "Arial, sans-serif",
@@ -327,7 +327,7 @@ const HomePage = () => {
           >
             {movies.map((movie, index) => (
               <div key={index}>
-                <img src={movie.imageUrl || "https://via.placeholder.com/800x300?text=No+Image"}
+                <img src={movie.imageUrl}
                   alt={movie.title}
                   style={styles.slideImage}
                 />
@@ -380,7 +380,7 @@ const HomePage = () => {
       {movies.map((movie, index) => (
   <div key={index} style={styles.movieCard}>
     <img
-      src={movie.imageUrl || "https://via.placeholder.com/800x300?text=No+Image"}
+      src={movie.imageUrl}
       alt={movie.title}
       style={styles.movieImage}
     />

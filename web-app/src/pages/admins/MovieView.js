@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Button, Modal, Box, CircularProgress, Alert, FormControl, Select, MenuItem, InputLabel } from '@mui/material';
-import { getAllMovies, addMovie, updateMovieById, deleteMovieById } from '../../services/MovieService';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
+  TextField, Button, Modal, Box, CircularProgress, Alert, FormControl, Select, MenuItem, InputLabel
+} from '@mui/material';
+import { getAllMovies, addMovie, updateMovieById, deleteMovieById, getCategories } from '../../services/MovieService';
 
 const MovieView = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [categoriesError, setCategoriesError] = useState(null);
   const [movieToEdit, setMovieToEdit] = useState(null);
   const [newMovie, setNewMovie] = useState({
     title: '',
@@ -15,34 +20,50 @@ const MovieView = () => {
     rating: '',
     language: '',
     imageName: '',
-    categories: [], // Array to hold selected categories
+    categories: [],
     imageFile: null,
+    imageUrl: ''
   });
   const [openModal, setOpenModal] = useState(false);
-
-  const [categories, setCategories] = useState([
-    'Action', 'Comedy', 'Drama', 'Horror', 'Sci-Fi', 'Romance',
-  ]);
+  const [categories, setCategories] = useState([]);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
-    const fetchMovies = async () => {
+    const fetchMoviesAndCategories = async () => {
       try {
-        const moviesData = await getAllMovies();
-        setMovies(moviesData);
+        const [moviesData, categoriesData] = await Promise.all([getAllMovies(), getCategories()]);
+        const savedCategories = JSON.parse(localStorage.getItem('selectedCategories'));
+        if (savedCategories) {
+          setNewMovie((prevMovie) => ({
+            ...prevMovie,
+            categories: savedCategories,
+          }));
+        }
+        const parsedMovies = moviesData.map((movie) => ({
+          ...movie,
+          categories: Array.isArray(movie.categories) ? movie.categories : JSON.parse(movie.categories || '[]'),
+        }));
+        setMovies(parsedMovies);
+        setCategories(categoriesData);
       } catch (error) {
-        setError('Error fetching movies');
+        setError('Error fetching movies or categories');
+        console.error('Error fetching movies or categories:', error);
       } finally {
         setLoading(false);
+        setCategoriesLoading(false);
       }
     };
-    fetchMovies();
+    fetchMoviesAndCategories();
   }, []);
 
   const handleOpenModal = (movie = null) => {
     setMovieToEdit(movie);
     if (movie) {
-      // Ensuring categories are correctly set when editing a movie
-      setNewMovie({ ...movie, imageFile: null });
+      setNewMovie({
+        ...movie,
+        imageFile: null, // Reset imageFile
+        imageUrl: movie.imageUrl || '' // Set imageUrl if exists
+      });
     } else {
       setNewMovie({
         title: '',
@@ -52,8 +73,9 @@ const MovieView = () => {
         rating: '',
         language: '',
         imageName: '',
-        categories: [], // Clear categories for a new movie
+        categories: [],
         imageFile: null,
+        imageUrl: ''
       });
     }
     setOpenModal(true);
@@ -61,6 +83,21 @@ const MovieView = () => {
 
   const handleCloseModal = () => {
     setOpenModal(false);
+    setNewMovie({
+      title: '',
+      description: '',
+      duration: '',
+      releaseDate: '',
+      rating: '',
+      language: '',
+      imageName: '',
+      categories: [],
+      imageFile: null,
+      imageUrl: ''
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleChange = (e) => {
@@ -73,62 +110,53 @@ const MovieView = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file); // Create a temporary URL for the image
+      const imageUrl = `/web-app/public/Images/${file.name}`; // Update to correct path
       setNewMovie({
         ...newMovie,
         imageName: file.name,
         imageFile: file,
-        imageUrl: imageUrl, // Set imageUrl
+        imageUrl: imageUrl
       });
     }
+  };
+
+  const handleCategoryChange = (event) => {
+    const { value } = event.target;
+    const selectedCategories = typeof value === 'string' ? value.split(',') : value;
+    localStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
+    console.log('Selected categories:', selectedCategories);
+    setNewMovie({
+      ...newMovie,
+      categories: selectedCategories,
+    });
   };
 
   const handleAddMovie = async () => {
     try {
       const addedMovie = await addMovie({
         ...newMovie,
-        categories: newMovie.categories,
+        categories: newMovie.categories
       });
       setMovies([...movies, addedMovie]);
-      setNewMovie({
-        title: '',
-        description: '',
-        duration: '',
-        releaseDate: '',
-        rating: '',
-        language: '',
-        imageName: '',
-        categories: [], // Clear categories
-        imageFile: null,
-        imageUrl: '', // Reset imageUrl
-      });
       handleCloseModal();
     } catch (err) {
       setError(JSON.stringify(err));
+      console.error('Error adding movie:', err);
     }
   };
+
   const handleUpdateMovie = async () => {
     try {
       await updateMovieById(movieToEdit.id, {
         ...newMovie,
-        categories: newMovie.categories,
+        categories: newMovie.categories
       });
       setMovies(movies.map((movie) => (movie.id === movieToEdit.id ? { ...movie, ...newMovie } : movie)));
       setMovieToEdit(null);
-      setNewMovie({
-        title: '',
-        description: '',
-        duration: '',
-        releaseDate: '',
-        rating: '',
-        language: '',
-        imageName: '',
-        categories: [], // Clear categories after update
-        imageFile: null,
-      });
       handleCloseModal();
     } catch (err) {
       setError('Failed to update movie');
+      console.error('Error updating movie:', err);
     }
   };
 
@@ -136,22 +164,16 @@ const MovieView = () => {
     try {
       await deleteMovieById(id);
       setMovies(movies.filter((movie) => movie.id !== id));
+      localStorage.removeItem('selectedCategories');
     } catch (err) {
       setError('Failed to delete movie');
+      console.error('Error deleting movie:', err);
     }
   };
-  const handleCategoryChange = (event, movieId) => {
-    const updatedMovies = movies.map((movie) => {
-      if (movie.id === movieId) {
-        return { ...movie, categories: event.target.value };
-      }
-      return movie;
-    });
-    setMovies(updatedMovies);
-  };
 
-  if (loading) return <CircularProgress />;
+  if (loading || categoriesLoading) return <CircularProgress />;
   if (error) return <Alert severity="error">{error}</Alert>;
+  if (categoriesError) return <Alert severity="error">{categoriesError}</Alert>;
 
   return (
     <div>
@@ -166,6 +188,7 @@ const MovieView = () => {
               <TableCell>Id</TableCell>
               <TableCell>Title</TableCell>
               <TableCell>Description</TableCell>
+              <TableCell>Image</TableCell>
               <TableCell>Categories</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -176,23 +199,11 @@ const MovieView = () => {
                 <TableCell>{movie.id}</TableCell>
                 <TableCell>{movie.title}</TableCell>
                 <TableCell>{movie.description}</TableCell>
+                <TableCell>{movie.imageUrl}</TableCell>
                 <TableCell>
-                  <FormControl fullWidth>
-                    <InputLabel>Categories</InputLabel>
-                    <Select
-                      label="Categories"
-                      multiple
-                      value={movie.categories}
-                      onChange={(e) => handleCategoryChange(e, movie.id)}
-                      renderValue={(selected) => selected.join(', ')}
-                    >
-                      {categories.map((category) => (
-                        <MenuItem key={category} value={category}>
-                          {category}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  {movie.categories && movie.categories.length > 0
+                    ? movie.categories.join(', ')
+                    : 'No categories selected'}
                 </TableCell>
                 <TableCell>
                   <Button variant="outlined" color="primary" onClick={() => handleOpenModal(movie)}>
@@ -284,9 +295,7 @@ const MovieView = () => {
               label="Categories"
               multiple
               value={newMovie.categories}
-              onChange={(e) => {
-                setNewMovie({ ...newMovie, categories: e.target.value });
-              }}
+              onChange={handleCategoryChange}
               renderValue={(selected) => selected.join(', ')}
             >
               {categories.map((category) => (
@@ -297,14 +306,24 @@ const MovieView = () => {
             </Select>
           </FormControl>
 
-          {/* File Input for Image */}
-          <input
-            type="file"
-            name="image"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-          {newMovie.imageName && <p>Selected File: {newMovie.imageName}</p>}
+          {/* Custom File Input for Image */}
+          <div style={{ marginBottom: 20 }}>
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              id="file-input"
+            />
+            <label htmlFor="file-input">
+              <Button variant="contained" component="span">
+                Choose File
+              </Button>
+            </label>
+            {newMovie.imageName && <p>Selected File: {newMovie.imageName}</p>}
+          </div>
 
           <Button
             variant="contained"

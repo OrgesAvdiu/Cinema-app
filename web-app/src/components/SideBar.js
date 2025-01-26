@@ -18,9 +18,6 @@ const Sidebar = () => {
         <ListItem button component={Link} to="/categories">
           <ListItemText primary="Categories" />
         </ListItem>
-        <ListItem button component={Link} to="/settings">
-          <ListItemText primary="Settings" />
-        </ListItem>
         <ListItem button component={Link} to="/cities">
           <ListItemText primary="Cities" />
         </ListItem>

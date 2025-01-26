@@ -1,11 +1,13 @@
 import { width } from "@mui/system";
 import React, { useState, useEffect } from "react";
 import axios from "axios"; // Import Axios
+import { getAllMovies } from "../../services/MovieService"; // Import the getAllMovies function
 import { FaMapMarkerAlt, FaSignInAlt, FaSearch, FaCalendarAlt, FaArrowLeft, FaArrowRight } from "react-icons/fa"; // Import the icons
 
 const HomePage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [movies, setMovies] = useState([]); // State for storing movies
+  const [sliderImages, setSliderImages] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false); 
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false); 
   const [searchIconHovered, setSearchIconHovered] = useState(false); 
@@ -13,24 +15,48 @@ const HomePage = () => {
   const categories = ["Action", "Drama", "Comedy", "Horror", "Sci-Fi", "Romance"];
 
   useEffect(() => {
-    // Fetch movies from the back-end API
-    axios.get("http://localhost:5000/api/movie")
-      .then(response => {
-        console.log("Movies fetched:", response.data); // Log the fetched data
-        setMovies(response.data); // Set the movies state with the data from the API
-      })
-      .catch(error => {
+    const fetchMovies = async () => {
+      try {
+        const moviesData = await getAllMovies();
+        console.log("Movies fetched:", moviesData); // Log the fetched data
+        const adjustedMovies = moviesData.map(movie => ({
+          ...movie,
+          imageUrl: movie.imageUrl.replace("/web-app/public", "") // Adjust the image URL
+        }));
+        setMovies(adjustedMovies);
+        const sliderImages = [
+          { title: "Slider Image 1", imageUrl: "/SliderImages/Interstellar.jpg" },
+          { title: "Slider Image 2", imageUrl: "/SliderImages/Joker.jpg" },
+          { title: "Slider Image 3", imageUrl: "/SliderImages/Shawshank Redemption.jpg" }
+        ];
+
+        setSliderImages(sliderImages);
+      } catch (error) {
         console.error("There was an error fetching the movies!", error);
-      });
-  }, []); 
+      }
+    };
 
-  const nextSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % movies.length);
-  };
+    fetchMovies();
 
-  const prevSlide = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + movies.length) % movies.length);
+  // Set up the interval for automatic sliding
+  const interval = setInterval(() => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % sliderImages.length);
+  }, 3000); // Change slide every 3 seconds
+
+  // Clear the interval when the component unmounts
+  return () => {
+    clearInterval(interval);
   };
+}, [sliderImages.length]); // Re-run the effect if the length of sliderImages changes
+
+
+const nextSlide = () => {
+  setCurrentIndex((prevIndex) => (prevIndex + 1) % sliderImages.length);
+};
+
+const prevSlide = () => {
+  setCurrentIndex((prevIndex) => (prevIndex - 1 + sliderImages.length) % sliderImages.length);
+};
   const styles = {
     container: {
       fontFamily: "Arial, sans-serif",
@@ -185,6 +211,11 @@ const HomePage = () => {
       height: "300px",
 
     },
+      slideTrack: {
+      display: "flex",
+      transition: "transform 0.5s ease-in-out",
+      width: `${sliderImages.length * 100}%`, // Set the width based on the number of images
+    },
     slide: {
       display: "flex",
       transition: "transform 0.5s ease-in-out",
@@ -253,6 +284,23 @@ const HomePage = () => {
 
   return (
     <div style={styles.container}>
+      <style>
+        {`
+          .image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+          }
+          .zoom-out img {
+            transform: scale(1.05); /* Adjust the scale value as needed */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1.05); /* Center and scale down */
+          }
+        `}
+      </style>
       {/* Navbar */}
       <div style={styles.navbar}>
         <div style={styles.navLogo}>CinemaApp</div>
@@ -317,38 +365,19 @@ const HomePage = () => {
   
 
       {/* Hero Section with Slider */}
-      <div style={styles.heroSection}>
-        <div style={styles.sliderContainer}>
-          <div
-            style={{
-              ...styles.slide,
-              transform: `translateX(-${currentIndex * 100}%)`,
-            }}
-          >
-            {movies.map((movie, index) => (
-              <div key={index}>
-                <img src={movie.imageUrl}
-                  alt={movie.title}
-                  style={styles.slideImage}
-                />
-              </div>
-            ))}
-          </div>
-
-          <button
-            style={{ ...styles.arrowButton, ...styles.leftArrow }}
-            onClick={prevSlide}
-          >
-            <FaArrowLeft />
-          </button>
-          <button
-            style={{ ...styles.arrowButton, ...styles.rightArrow }}
-            onClick={nextSlide}
-          >
-            <FaArrowRight />
-          </button>
-        </div>
+      <div style={styles.sliderContainer}>
+  <div style={{ ...styles.slideTrack, transform: `translateX(-${currentIndex * (100 / sliderImages.length)}%)` }}>
+    {sliderImages.map((image, index) => (
+      <div key={index} style={styles.slide}>
+        <div className={index === 2 ? "image-wrapper zoom-out" : "image-wrapper"}>
+        <img src={image.imageUrl} alt={image.title} style={styles.slideImage} />
       </div>
+      </div>
+    ))}
+  </div>
+  <button style={{ ...styles.arrowButton, ...styles.leftArrow }} onClick={prevSlide}><FaArrowLeft /></button>
+  <button style={{ ...styles.arrowButton, ...styles.rightArrow }} onClick={nextSlide}><FaArrowRight /></button>
+</div>
 
       <div style={styles.selectCityAndDateWrapper}>
   {/* Select City */}

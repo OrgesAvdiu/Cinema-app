@@ -5,7 +5,7 @@ import Sidebar from './components/SideBar'; // Import Sidebar
 import Dashboard from './components/Dashboard';
 import HomePage from './pages/client/HomePage';
 import CinemaView from './pages/admins/CinemaView';
-import UserView from './pages/admins/UserView';
+import UserView from './pages/admins/UserView'; 
 import MovieView from './pages/admins/MovieView';
 import CategoryView from './pages/admins/CategoryView';
 import CityView from './pages/admins/CityView';

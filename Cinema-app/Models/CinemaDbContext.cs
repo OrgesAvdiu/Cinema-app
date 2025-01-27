@@ -19,6 +19,8 @@ namespace CinemaApp.Models
         public DbSet<Offers> Offers { get; set; }
         public DbSet<City> Cities { get; set; }
 
+        public DbSet<MovieDetail> MovieDetail { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

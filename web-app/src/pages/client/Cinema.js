@@ -14,12 +14,14 @@ const Cinema = () => {
       fontFamily: "Arial, sans-serif",
       color: "#fff",
       backgroundColor: "#121212",
+      minHeight: "100vh", // Ensure it takes the full height of the viewport
+      display: "flex",
+      flexDirection: "column",
     },
     header: {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: "20px",
       padding: "10px 20px",
       backgroundColor: "#242424",
     },
@@ -86,7 +88,8 @@ const Cinema = () => {
       fontWeight: "bold",
     },
     main: {
-      marginBottom: "20px",
+      flex: 1, // Take up the remaining space
+      padding: "20px",
     },
     movieGrid: {
       display: "grid",
@@ -111,6 +114,7 @@ const Cinema = () => {
       gap: "20px",
       borderTop: "1px solid #333",
       paddingTop: "20px",
+      backgroundColor: "#242424",
     },
     footerSection: {
       flex: "1 1 200px",

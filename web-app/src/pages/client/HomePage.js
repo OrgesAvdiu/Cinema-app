@@ -125,11 +125,9 @@ const prevSlide = () => {
       margin: "20px 0",
       display: "flex",
       justifyContent: "center",
-      gap: "10px",
       alignItems: "center", // Center items vertically
       position: "relative", // Ensure that the search bar is positioned relative to this container
     },
-    
     searchBar: {
       position: "absolute", // Keep the search bar absolutely positioned within its container
       right: "0", // Position the search bar to the right side of the navbar
@@ -144,13 +142,15 @@ const prevSlide = () => {
       transition: "width 0.3s ease, opacity 0.3s ease", // Smooth width and opacity transition
       zIndex: 10, // Ensure the search bar appears on top of other elements
     },
-    
-    
     searchIcon: {
       fontSize: "20px", // Adjust size as needed
       color: searchIconHovered ? "#fff" : "#e50914", // Change color on hover
-      marginRight: "10px", // Added margin to the right to separate the icon from input
       cursor: "pointer", // Make the icon clickable
+      position: "absolute", // Position the icon absolute to move it in front of the search bar
+      right: showSearchInput ? "210px" : "10px", // Move the icon in front of the search bar when it is expanded
+      transition: "right 0.3s ease", // Smooth transition for the icon position
+      zIndex: 20, // Ensure the search icon appears on top of the search bar
+      margin: "0 10px"
     },
     selectCityWrapper: {
       display: "flex",
@@ -341,21 +341,21 @@ const prevSlide = () => {
           )}
         </div>
             {/* Search Bar and Dropdowns */}
-      <div style={styles.searchBarSection}>
-        <FaSearch 
-          style={styles.searchIcon}
-          onMouseEnter={() => setSearchIconHovered(true)} // Set hover state to true
-          onMouseLeave={() => setSearchIconHovered(false)} // Set hover state to false
-          onClick={() => setShowSearchInput(!showSearchInput)} // Toggle search input visibility
-        />
-        <div style={styles.searchBar}>
-          <input
-            type="text"
-            placeholder="Search for movies..."
-            style={{ width: "100%", padding: "12px", borderRadius: "4px", border: "none" }}
-          />
-        </div>
-      </div>
+            <div style={styles.searchBarSection}>
+  <FaSearch 
+    style={styles.searchIcon}
+    onMouseEnter={() => setSearchIconHovered(true)} // Set hover state to true
+    onMouseLeave={() => setSearchIconHovered(false)} // Set hover state to false
+    onClick={() => setShowSearchInput(!showSearchInput)} // Toggle search input visibility
+  />
+  <div style={styles.searchBar}>
+    <input
+      type="text"
+      placeholder="Search for movies..."
+      style={{ width: "100%", padding: "12px", borderRadius: "4px", border: "none" }}
+    />
+  </div>
+</div>
         <div style={styles.navButtons}>
           <button style={styles.button}><FaSignInAlt style={{ verticalAlign: 'middle', marginRight: "8px" }} /> Log In</button>
           <button style={styles.button}>Join</button>

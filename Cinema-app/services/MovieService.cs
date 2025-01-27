@@ -51,27 +51,33 @@ namespace Cinema_app.Services
                 .Include(m => m.Categories)
                 .FirstOrDefault(m => m.Id == movieId);
         }
-
         // Update a movie
         public void Update(int movieId, Movie movie)
         {
             if (movie == null)
                 throw new ArgumentNullException(nameof(movie));
 
-            var existingMovie = _context.Movies.FirstOrDefault(m => m.Id == movieId);
+            var existingMovie = _context.Movies.Include(m => m.Categories).FirstOrDefault(m => m.Id == movieId);
             if (existingMovie == null)
             {
                 throw new KeyNotFoundException($"Movie with ID {movieId} not found.");
             }
 
+            // Update movie properties
             existingMovie.Title = movie.Title;
             existingMovie.Description = movie.Description;
             existingMovie.Duration = movie.Duration;
             existingMovie.ReleaseDate = movie.ReleaseDate;
             existingMovie.Rating = movie.Rating;
             existingMovie.Language = movie.Language;
-            existingMovie.Categories = movie.Categories;
             existingMovie.imageUrl = movie.imageUrl;
+
+            // Update categories
+            existingMovie.Categories.Clear();
+            foreach (var category in movie.Categories)
+            {
+                existingMovie.Categories.Add(category);
+            }
 
             _context.SaveChanges();
         }

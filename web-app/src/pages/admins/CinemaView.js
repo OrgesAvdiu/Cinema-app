@@ -1,52 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Button, Modal, Box, CircularProgress, Alert } from '@mui/material';
-import { getAllMovies, addMovie, updateMovieById, deleteMovieById } from '../../services/MovieService'; // Import the service
+import { getAllCinemas, addCinema, updateCinemaById, deleteCinemaById } from '../../services/CinemaService'; // Import the service
 
-const MovieView = () => {
-  const [movies, setMovies] = useState([]); // Movies from back-end
+const CinemaView = () => {
+  const [cinemas, setCinemas] = useState([]); // Cinemas from back-end
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
-  const [movieToEdit, setMovieToEdit] = useState(null);
-  const [newMovie, setNewMovie] = useState({
-    title: '',
-    description: '',
-    duration: '',
-    releaseDate: '',
-    rating: '',
-    language: '',
-    categories: []
+  const [cinemaToEdit, setCinemaToEdit] = useState(null);
+  const [newCinema, setNewCinema] = useState({
+    name: '',
+    location: '',
+    contactInfo: ''
   });
   const [openModal, setOpenModal] = useState(false);
 
-  // Fetch movies from back-end
+  // Fetch cinemas from back-end
   useEffect(() => {
-    const fetchMovies = async () => {
+    const fetchCinemas = async () => {
       try {
-        const moviesData = await getAllMovies();
-        setMovies(moviesData);
+        const cinemasData = await getAllCinemas();
+        setCinemas(cinemasData);
       } catch (error) {
-        setError('Error fetching movies');
+        setError('Error fetching cinemas');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMovies();
+    fetchCinemas();
   }, []);
 
-  const handleOpenModal = (movie = null) => {
-    setMovieToEdit(movie);
-    if (movie) {
-      setNewMovie({ ...movie });
+  const handleOpenModal = (cinema = null) => {
+    setCinemaToEdit(cinema);
+    if (cinema) {
+      setNewCinema({ ...cinema });
     } else {
-      setNewMovie({
-        title: '',
-        description: '',
-        duration: '',
-        releaseDate: '',
-        rating: '',
-        language: '',
-        categories: []
+      setNewCinema({
+        name: '',
+        location: '',
+        contactInfo: ''
       });
     }
     setOpenModal(true);
@@ -57,57 +49,49 @@ const MovieView = () => {
   };
 
   const handleChange = (e) => {
-    setNewMovie({
-      ...newMovie,
+    setNewCinema({
+      ...newCinema,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleAddMovie = async () => {
+  const handleAddCinema = async () => {
     try {
-      const addedMovie = await addMovie(newMovie);
-      setMovies([...movies, addedMovie]);
-      setNewMovie({
-        title: '',
-        description: '',
-        duration: '',
-        releaseDate: '',
-        rating: '',
-        language: '',
-        categories: []
+      const addedCinema = await addCinema(newCinema);
+      setCinemas([...cinemas, addedCinema]);
+      setNewCinema({
+        name: '',
+        location: '',
+        contactInfo: ''
       });
       handleCloseModal();
     } catch (err) {
-      setError('Failed to add movie');
+      setError('Failed to add cinema');
     }
   };
 
-  const handleUpdateMovie = async () => {
+  const handleUpdateCinema = async () => {
     try {
-      await updateMovieById(movieToEdit.id, newMovie);
-      setMovies(movies.map((movie) => (movie.id === movieToEdit.id ? { ...movie, ...newMovie } : movie)));
-      setMovieToEdit(null);
-      setNewMovie({
-        title: '',
-        description: '',
-        duration: '',
-        releaseDate: '',
-        rating: '',
-        language: '',
-        categories: []
+      await updateCinemaById(cinemaToEdit.id, newCinema);
+      setCinemas(cinemas.map((cinema) => (cinema.id === cinemaToEdit.id ? { ...cinema, ...newCinema } : cinema)));
+      setCinemaToEdit(null);
+      setNewCinema({
+        name: '',
+        location: '',
+        contactInfo: ''
       }); // Reset the form
       handleCloseModal();
     } catch (err) {
-      setError('Failed to update movie');
+      setError('Failed to update cinema');
     }
   };
 
-  const handleDeleteMovie = async (id) => {
+  const handleDeleteCinema = async (id) => {
     try {
-      await deleteMovieById(id);
-      setMovies(movies.filter((movie) => movie.id !== id));
+      await deleteCinemaById(id);
+      setCinemas(cinemas.filter((cinema) => cinema.id !== id));
     } catch (err) {
-      setError('Failed to delete movie');
+      setError('Failed to delete cinema');
     }
   };
 
@@ -116,34 +100,36 @@ const MovieView = () => {
 
   return (
     <div>
-      <h1>Movie Management</h1>
+      <h1>Cinema Management</h1>
       <Button variant="contained" color="primary" onClick={() => handleOpenModal()}>
-        Add Movie
+        Add Cinema
       </Button>
       <TableContainer component={Paper} style={{ marginTop: 20 }}>
         <Table>
           <TableHead>
             <TableRow>
               <TableCell>Id</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>Description</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Location</TableCell>
+              <TableCell>Contact Info</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {movies.map((movie) => (
-              <TableRow key={movie.id}>
-                <TableCell>{movie.id}</TableCell>
-                <TableCell>{movie.title}</TableCell>
-                <TableCell>{movie.description}</TableCell>
+            {cinemas.map((cinema) => (
+              <TableRow key={cinema.id}>
+                <TableCell>{cinema.id}</TableCell>
+                <TableCell>{cinema.name}</TableCell>
+                <TableCell>{cinema.location}</TableCell>
+                <TableCell>{cinema.contactInfo}</TableCell>
                 <TableCell>
-                  <Button variant="outlined" color="primary" onClick={() => handleOpenModal(movie)}>
+                  <Button variant="outlined" color="primary" onClick={() => handleOpenModal(cinema)}>
                     Edit
                   </Button>
                   <Button
                     variant="outlined"
                     color="secondary"
-                    onClick={() => handleDeleteMovie(movie.id)}
+                    onClick={() => handleDeleteCinema(cinema.id)}
                     style={{ marginLeft: 10 }}
                   >
                     Delete
@@ -155,7 +141,7 @@ const MovieView = () => {
         </Table>
       </TableContainer>
 
-      {/* Modal for creating or editing movie */}
+      {/* Modal for creating or editing cinema */}
       <Modal open={openModal} onClose={handleCloseModal}>
         <Box
           style={{
@@ -169,51 +155,27 @@ const MovieView = () => {
             boxShadow: 24,
           }}
         >
-          <h2>{movieToEdit ? 'Edit Movie' : 'Add Movie'}</h2>
+          <h2>{cinemaToEdit ? 'Edit Cinema' : 'Add Cinema'}</h2>
           <TextField
-            label="Title"
-            name="title"
-            value={newMovie.title}
+            label="Name"
+            name="name"
+            value={newCinema.name}
             onChange={handleChange}
             fullWidth
             style={{ marginBottom: 10 }}
           />
           <TextField
-            label="Description"
-            name="description"
-            value={newMovie.description}
+            label="Location"
+            name="location"
+            value={newCinema.location}
             onChange={handleChange}
             fullWidth
             style={{ marginBottom: 10 }}
           />
           <TextField
-            label="Duration"
-            name="duration"
-            value={newMovie.duration}
-            onChange={handleChange}
-            fullWidth
-            style={{ marginBottom: 10 }}
-          />
-          <TextField
-            label="Release Date"
-            name="releaseDate"
-            value={newMovie.releaseDate}
-            onChange={handleChange}
-            fullWidth
-            style={{ marginBottom: 10 }}
-          />
-          <TextField
-            label="Rating"
-            name="rating"
-            value={newMovie.rating}
-            onChange={handleChange}
-            fullWidth
-            style={{ marginBottom: 10 }}
-          />
-          <TextField
-            label="Language"
-            name="language"
-            value={newMovie.language}
+            label="Contact Info"
+            name="contactInfo"
+            value={newCinema.contactInfo}
             onChange={handleChange}
             fullWidth
             style={{ marginBottom: 20 }}
@@ -221,9 +183,9 @@ const MovieView = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={movieToEdit ? handleUpdateMovie : handleAddMovie}
+            onClick={cinemaToEdit ? handleUpdateCinema : handleAddCinema}
           >
-            {movieToEdit ? 'Update' : 'Add'}
+            {cinemaToEdit ? 'Update' : 'Add'}
           </Button>
         </Box>
       </Modal>
@@ -231,4 +193,4 @@ const MovieView = () => {
   );
 };
 
-export default MovieView;
+export default CinemaView;

@@ -10,11 +10,6 @@ namespace CinemaApp.Models
             : base(options)
         {
         }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-        }
-
 
         public DbSet<Movie> Movies { get; set; }
         public DbSet<Category> Categories { get; set; }
@@ -23,5 +18,18 @@ namespace CinemaApp.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Offers> Offers { get; set; }
         public DbSet<City> Cities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Configure the many-to-many relationship between Movie and Category
+            modelBuilder.Entity<Movie>()
+                .HasMany(m => m.Categories)
+                .WithMany(c => c.Movies)
+                .UsingEntity(j => j.ToTable("MovieCategories")); // Specify join table name
+
+            // Add any additional configurations if needed
+        }
     }
 }

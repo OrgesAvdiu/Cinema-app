@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios"; // Import Axios
 import { getAllMovies } from "../../services/MovieService"; // Import the getAllMovies function
 import { FaMapMarkerAlt, FaSignInAlt, FaSearch, FaCalendarAlt, FaArrowLeft, FaArrowRight } from "react-icons/fa"; // Import the icons
+import MovieList from "./MovieList";
 
 const HomePage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -11,6 +12,8 @@ const HomePage = () => {
   const [showSearchInput, setShowSearchInput] = useState(false); 
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false); 
   const [searchIconHovered, setSearchIconHovered] = useState(false); 
+  const [showPopup, setShowPopup] = useState(false); // State for controlling the visibility of the popup
+  const [selectedMovieId, setSelectedMovieId] = useState(null); // State for storing the selected movie ID 
 
   const categories = ["Action", "Drama", "Comedy", "Horror", "Sci-Fi", "Romance"];
 
@@ -56,6 +59,17 @@ const nextSlide = () => {
 
 const prevSlide = () => {
   setCurrentIndex((prevIndex) => (prevIndex - 1 + sliderImages.length) % sliderImages.length);
+};
+
+
+const handleMovieClick = (movie) => {
+  setSelectedMovieId(movie);
+  setShowPopup(true);
+};
+
+const handleClosePopup = () => {
+  setShowPopup(false);
+  setSelectedMovieId(null);
 };
   const styles = {
     container: {
@@ -128,6 +142,7 @@ const prevSlide = () => {
       alignItems: "center", // Center items vertically
       position: "relative", // Ensure that the search bar is positioned relative to this container
     },
+    
     searchBar: {
       position: "absolute", // Keep the search bar absolutely positioned within its container
       right: "0", // Position the search bar to the right side of the navbar
@@ -142,9 +157,12 @@ const prevSlide = () => {
       transition: "width 0.3s ease, opacity 0.3s ease", // Smooth width and opacity transition
       zIndex: 10, // Ensure the search bar appears on top of other elements
     },
+    
+    
     searchIcon: {
       fontSize: "20px", // Adjust size as needed
       color: searchIconHovered ? "#fff" : "#e50914", // Change color on hover
+      marginRight: "10px", // Added margin to the right to separate the icon from input
       cursor: "pointer", // Make the icon clickable
       position: "absolute", // Position the icon absolute to move it in front of the search bar
       right: showSearchInput ? "210px" : "10px", // Move the icon in front of the search bar when it is expanded
@@ -255,7 +273,8 @@ const prevSlide = () => {
     movieCard: {
       width: "23%",
       textAlign: "center",
-    },
+      cursor: "pointer", // Add cursor pointer to indicate clickable
+  },
     movieImage: {
       width: "80%",
       height: "400px",
@@ -355,7 +374,7 @@ const prevSlide = () => {
       style={{ width: "100%", padding: "12px", borderRadius: "4px", border: "none" }}
     />
   </div>
-</div>
+        </div>
         <div style={styles.navButtons}>
           <button style={styles.button}><FaSignInAlt style={{ verticalAlign: 'middle', marginRight: "8px" }} /> Log In</button>
           <button style={styles.button}>Join</button>
@@ -366,66 +385,53 @@ const prevSlide = () => {
 
       {/* Hero Section with Slider */}
       <div style={styles.sliderContainer}>
-  <div style={{ ...styles.slideTrack, transform: `translateX(-${currentIndex * (100 / sliderImages.length)}%)` }}>
-    {sliderImages.map((image, index) => (
-      <div key={index} style={styles.slide}>
-        <div className={index === 2 ? "image-wrapper zoom-out" : "image-wrapper"}>
-        <img src={image.imageUrl} alt={image.title} style={styles.slideImage} />
+        <div style={{ ...styles.slideTrack, transform: `translateX(-${currentIndex * (100 / sliderImages.length)}%)` }}>
+          {sliderImages.map((image, index) => (
+            <div key={index} style={styles.slide}>
+              <div className={index === 2 ? "image-wrapper zoom-out" : "image-wrapper"}>
+                <img src={image.imageUrl} alt={image.title} style={styles.slideImage} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <button style={{ ...styles.arrowButton, ...styles.leftArrow }} onClick={prevSlide}><FaArrowLeft /></button>
+        <button style={{ ...styles.arrowButton, ...styles.rightArrow }} onClick={nextSlide}><FaArrowRight /></button>
       </div>
-      </div>
-    ))}
-  </div>
-  <button style={{ ...styles.arrowButton, ...styles.leftArrow }} onClick={prevSlide}><FaArrowLeft /></button>
-  <button style={{ ...styles.arrowButton, ...styles.rightArrow }} onClick={nextSlide}><FaArrowRight /></button>
-</div>
 
-      <div style={styles.selectCityAndDateWrapper}>
-  {/* Select City */}
-  <div style={styles.selectCityWrapper}>
-    <FaMapMarkerAlt style={styles.locationIcon} />
-    <select style={styles.dropdown}>
-      <option>Select City</option>
-      <option>New York</option>
-      <option>Los Angeles</option>
-      <option>Chicago</option>
-    </select>
-  </div>
+<div style={styles.selectCityAndDateWrapper}>
+        {/* Select City */}
+        <div style={styles.selectCityWrapper}>
+          <FaMapMarkerAlt style={styles.locationIcon} />
+          <select style={styles.dropdown}>
+            <option>Select City</option>
+            <option>New York</option>
+            <option>Los Angeles</option>
+            <option>Chicago</option>
+          </select>
+        </div>
 
   {/* Select Date */}
   <div style={styles.selectCityWrapper}>
-    <FaCalendarAlt style={styles.calendarIcon} />
-    <select style={styles.dropdown}>
-      <option>Select Date</option>
-      <option>Today</option>
-      <option>Tomorrow</option>
-      <option>This Weekend</option>
-    </select>
-  </div>
-</div>
-
-
-      {/* Movie Row Section */}
-      <div style={styles.movieRowContainer}>
-      {movies.map((movie, index) => (
-  <div key={index} style={styles.movieCard}>
-    <img
-      src={movie.imageUrl}
-      alt={movie.title}
-      style={styles.movieImage}
-    />
-    <div style={styles.movieDetails}>
-      <p style={styles.movieTitle}>{movie.title}</p>
-      <p style={styles.movieDate}>Release Date: {new Date(movie.releaseDate).toLocaleDateString() || "TBD"}</p>
-    </div>
-  </div>
-))}
-
+          <FaCalendarAlt style={styles.calendarIcon} />
+          <select style={styles.dropdown}>
+            <option>Select Date</option>
+            <option>Today</option>
+            <option>Tomorrow</option>
+            <option>This Weekend</option>
+          </select>
+        </div>
       </div>
+
+
+     {/* Movie Row Section */}
+     <MovieList movies={movies} handleMovieClick={handleMovieClick} />
 
       {/* Footer */}
       <div style={styles.footer}>
         <p>© 2024 CinemaApp. All rights reserved.</p>
       </div>
+
+    
     </div>
   );
 };

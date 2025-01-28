@@ -22,7 +22,8 @@ const MovieView = () => {
     imageName: '',
     categories: [],
     imageFile: null,
-    imageUrl: ''
+    imageUrl: '',
+    price: '' // Add the price field
   });
   const [openModal, setOpenModal] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -62,7 +63,8 @@ const MovieView = () => {
       setNewMovie({
         ...movie,
         imageFile: null, // Reset imageFile
-        imageUrl: movie.imageUrl || '' // Set imageUrl if exists
+        imageUrl: movie.imageUrl || '', // Set imageUrl if exists
+        price: movie.price || '' // Ensure price is loaded for editing
       });
     } else {
       setNewMovie({
@@ -75,7 +77,8 @@ const MovieView = () => {
         imageName: '',
         categories: [],
         imageFile: null,
-        imageUrl: ''
+        imageUrl: '',
+        price: '' // Reset price on opening modal for new movie
       });
     }
     setOpenModal(true);
@@ -93,7 +96,8 @@ const MovieView = () => {
       imageName: '',
       categories: [],
       imageFile: null,
-      imageUrl: ''
+      imageUrl: '',
+      price: '' // Clear price on modal close
     });
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -140,7 +144,7 @@ const MovieView = () => {
       setMovies([...movies, addedMovie]);
       handleCloseModal();
     } catch (err) {
-      setError(JSON.stringify(err));
+      setError('Error adding movie');
       console.error('Error adding movie:', err);
     }
   };
@@ -155,7 +159,7 @@ const MovieView = () => {
       setMovieToEdit(null);
       handleCloseModal();
     } catch (err) {
-      setError('Failed to update movie');
+      setError('Error updating movie');
       console.error('Error updating movie:', err);
     }
   };
@@ -166,7 +170,7 @@ const MovieView = () => {
       setMovies(movies.filter((movie) => movie.id !== id));
       localStorage.removeItem('selectedCategories');
     } catch (err) {
-      setError('Failed to delete movie');
+      setError('Error deleting movie');
       console.error('Error deleting movie:', err);
     }
   };
@@ -187,6 +191,7 @@ const MovieView = () => {
             <TableRow>
               <TableCell>Id</TableCell>
               <TableCell>Title</TableCell>
+              <TableCell>Price</TableCell>
               <TableCell>Description</TableCell>
               <TableCell>Image</TableCell>
               <TableCell>Categories</TableCell>
@@ -198,6 +203,7 @@ const MovieView = () => {
               <TableRow key={movie.id}>
                 <TableCell>{movie.id}</TableCell>
                 <TableCell>{movie.title}</TableCell>
+                <TableCell>{movie.price}</TableCell>
                 <TableCell>{movie.description}</TableCell>
                 <TableCell>{movie.imageUrl}</TableCell>
                 <TableCell>
@@ -243,6 +249,14 @@ const MovieView = () => {
             label="Title"
             name="title"
             value={newMovie.title}
+            onChange={handleChange}
+            fullWidth
+            style={{ marginBottom: 10 }}
+          />
+          <TextField
+            label="Price"
+            name="price"
+            value={newMovie.price}
             onChange={handleChange}
             fullWidth
             style={{ marginBottom: 10 }}

@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const API_URL = 'https://localhost:7189/api/Movie'; // Adjust the URL based on your API's address
+
 export const getCategories = async () => {
   try {
     const response = await axios.get(`${API_URL}/categories`);
@@ -9,6 +10,7 @@ export const getCategories = async () => {
     throw error.response ? error.response.data : 'Error fetching categories';
   }
 };
+
 // Get all movies
 export const getAllMovies = async () => {
   try {
@@ -29,7 +31,7 @@ export const getMovieById = async (id) => {
   }
 };
 
-// Add a new movie with image
+// Add a new movie with image and price
 export const addMovie = async (movie) => {
   const formData = new FormData();
   formData.append('title', movie.title);
@@ -39,6 +41,7 @@ export const addMovie = async (movie) => {
   formData.append('rating', movie.rating);
   formData.append('language', movie.language);
   formData.append('imageUrl', movie.imageUrl); // Ensure imageUrl is included
+  formData.append('price', movie.price); // Add this line
 
   if (Array.isArray(movie.categories)) {
     formData.append('categories', JSON.stringify(movie.categories));
@@ -62,7 +65,7 @@ export const addMovie = async (movie) => {
   }
 };
 
-// Update movie by ID with image
+// Update movie by ID with image and price
 export const updateMovieById = async (id, movie) => {
   const formData = new FormData();
   formData.append('id', movie.id);
@@ -73,7 +76,8 @@ export const updateMovieById = async (id, movie) => {
   formData.append('rating', movie.rating);
   formData.append('language', movie.language);
   formData.append('categories', JSON.stringify(movie.categories));
-  formData.append('imageUrl', movie.imageUrl); // Append the imageUrl as a string
+  formData.append('imageUrl', movie.imageUrl); // Ensure imageUrl is included
+  formData.append('price', movie.price); // Add this line
 
   try {
     const response = await axios.put(`${API_URL}/${id}`, formData, {

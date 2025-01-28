@@ -65,32 +65,32 @@ namespace Cinema_app.Controllers
 
         // Update a movie
         [HttpPut("{id}")]
-public IActionResult UpdateMovie(int id, [FromForm] Movie updatedMovie)
-{
-    if (updatedMovie == null || id != updatedMovie.Id)
-    {
-        return BadRequest(new { Message = "Invalid movie data" });
-    }
-
-    try
-    {
-        var existingMovie = _movieService.GetById(id); // Ensure this method works correctly
-        if (existingMovie == null)
+        public IActionResult UpdateMovie(int id, [FromForm] Movie updatedMovie)
         {
-            return NotFound(new { Message = "Movie not found" });
+            if (updatedMovie == null || id != updatedMovie.Id)
+            {
+                return BadRequest(new { Message = "Invalid movie data" });
+            }
+
+            try
+            {
+                var existingMovie = _movieService.GetById(id); // Ensure this method works correctly
+                if (existingMovie == null)
+                {
+                    return NotFound(new { Message = "Movie not found" });
+                }
+
+                _movieService.Update(id, updatedMovie); // Ensure this method updates the movie correctly
+                return Ok(new { Message = "Movie updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (logging mechanism depends on your setup)
+                // For example: _logger.LogError(ex, "Error updating movie with id {id}", id);
+
+                return StatusCode(500, new { Message = "An error occurred while updating the movie", Details = ex.Message });
+            }
         }
-
-        _movieService.Update(id, updatedMovie); // Ensure this method updates the movie correctly
-        return Ok(new { Message = "Movie updated successfully" });
-    }
-    catch (Exception ex)
-    {
-        // Log the exception (logging mechanism depends on your setup)
-        // For example: _logger.LogError(ex, "Error updating movie with id {id}", id);
-
-        return StatusCode(500, new { Message = "An error occurred while updating the movie", Details = ex.Message });
-    }
-}
         // Delete a movie by ID
         [HttpDelete("{id}")]
         public IActionResult DeleteMovie(int id)

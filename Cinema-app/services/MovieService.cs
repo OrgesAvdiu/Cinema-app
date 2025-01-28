@@ -32,7 +32,8 @@ namespace Cinema_app.Services
                 Rating = movie.Rating,
                 Language = movie.Language,
                 Categories = movie.Categories,
-                imageUrl = movie.imageUrl
+                imageUrl = movie.imageUrl,
+                Price = movie.Price  // Ensure this line is present
             };
             _context.Movies.Add(newMovie);
             _context.SaveChanges();
@@ -51,6 +52,7 @@ namespace Cinema_app.Services
                 .Include(m => m.Categories)
                 .FirstOrDefault(m => m.Id == movieId);
         }
+
         // Update a movie
         public void Update(int movieId, Movie movie)
         {
@@ -71,6 +73,7 @@ namespace Cinema_app.Services
             existingMovie.Rating = movie.Rating;
             existingMovie.Language = movie.Language;
             existingMovie.imageUrl = movie.imageUrl;
+            existingMovie.Price = movie.Price;  // Ensure this line is present
 
             // Update categories
             existingMovie.Categories.Clear();

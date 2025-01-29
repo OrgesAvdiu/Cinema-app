@@ -10,12 +10,9 @@ namespace Cinema_app.model
     {
         public int Id { get; set; }
 
-        [Required]
-        public string Name { get; set; }
+    
 
-        public string Description { get; set; }
 
-        public string Image { get; set; }
 
         [Required]
         public int CinemaId { get; set; }
@@ -30,7 +27,7 @@ namespace Cinema_app.model
         [Required]
         public string PaymentMethod { get; set; }
 
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedDate { get; set; } = DateTime.UtcNow;
+   //     public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+     //   public DateTime UpdatedDate { get; set; } = DateTime.UtcNow;
     }
 }

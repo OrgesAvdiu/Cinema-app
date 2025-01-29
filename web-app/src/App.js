@@ -12,6 +12,8 @@ import CityView from './pages/admins/CityView';
 import OffersView from './pages/admins/OffersView';
 import RoomView from './pages/admins/RoomView';
 import Cinema from './pages/client/Cinema'; 
+import Cinema from './ccess frpages/client/Cinema';
+import PaymentSuom './components/PaymentSuccess';
 
 const App = () => {
   return (
@@ -42,6 +44,7 @@ const MainContent = () => {
           <Route path="/cities" element={<CityView />} />
           <Route path="/offers" element={<OffersView />} />
           <Route path="/room" element={<RoomView />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
         </Routes>
       </div>
     </div>

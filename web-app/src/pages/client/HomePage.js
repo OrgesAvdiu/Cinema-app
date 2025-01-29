@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { getAllMovies } from "../../services/MovieService"; 
 import { FaMapMarkerAlt, FaSignInAlt, FaSearch, FaCalendarAlt, FaArrowLeft, FaArrowRight } from "react-icons/fa"; 
 import { useNavigate } from "react-router-dom";
+import MovieList from "./MovieList";
 
 const HomePage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -10,6 +11,8 @@ const HomePage = () => {
   const [showSearchInput, setShowSearchInput] = useState(false); 
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false); 
   const [searchIconHovered, setSearchIconHovered] = useState(false); 
+  const [showPopup, setShowPopup] = useaState(false);
+  const [selectedMovieId, setSelectedMovieId] = useState(null);
   const navigate = useNavigate();
 
   const categories = ["Action", "Drama", "Comedy", "Horror", "Sci-Fi", "Romance"];
@@ -55,6 +58,17 @@ const HomePage = () => {
     setCurrentIndex((prevIndex) => (prevIndex - 1 + sliderImages.length) % sliderImages.length);
   };
 
+
+
+const handleMovieClick = (movie) => {
+  setSelectedMovieId(movie);
+  setShowPopup(true);
+};
+
+const handleClosePopup = () => {
+  setShowPopup(false);
+  setSelectedMovieId(null);
+};
   const styles = {
     container: {
       fontFamily: "Arial, sans-serif",
@@ -128,6 +142,7 @@ const HomePage = () => {
       alignItems: "center",
       gap: "10px",
     },
+    
     searchBar: {
       width: showSearchInput ? "200px" : "0",
       padding: "10px",
@@ -137,47 +152,17 @@ const HomePage = () => {
       opacity: showSearchInput ? 1 : 0,
       visibility: showSearchInput ? "visible" : "hidden",
     },
+    
+    
     searchIcon: {
       fontSize: "20px",
-      color: "#fff", 
+      color: searchIconHovered ? "#fff" : "#e50914",
       cursor: "pointer",
-    },
-    loginButton: {
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      backgroundColor: "#e50914",
-      color: "#fff",
-      padding: "14px 28px", 
-      border: "none", 
-      borderRadius: "20px", 
-      cursor: "pointer",
-      fontWeight: "bold",
-      boxShadow: "0 4px 10px rgba(229, 9, 20, 0.4)",
-      fontSize: "16px", 
-    },
-    joinButton: {
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-      backgroundColor: "#000", 
-      color: "#fff",
-      padding: "14px 28px", 
-      border: "none", 
-      borderRadius: "20px",
-      cursor: "pointer",
-      fontWeight: "bold",
-      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)", 
-      fontSize: "16px",
-    },
-    selectCityAndDateWrapper: {
-      display: "flex", 
-      flexDirection: "row", 
-      alignItems: "center", 
-      justifyContent: "center", 
-      marginTop: "20px", 
-      gap: "20px", 
-      width: "100%",
+      position: "absolute",
+      right: showSearchInput ? "210px" : "10px",
+      transition: "right 0.3s ease",
+      zIndex: 20,
+      margin: "0 10px"
     },
     selectCityWrapper: {
       display: "flex",
@@ -271,7 +256,8 @@ const HomePage = () => {
     movieCard: {
       width: "23%",
       textAlign: "center",
-    },
+      cursor: "pointer",
+  },
     movieImage: {
       width: "80%",
       height: "400px",
@@ -304,65 +290,81 @@ const HomePage = () => {
 
   return (
     <div style={styles.container}>
-      <header style={styles.header}>
-        <div style={styles.logoAndNav}>
-          <h1 style={styles.logo} onClick={() => navigate("/")}>CinemaApp</h1>
-          <nav>
-            <ul style={styles.nav}>
-              {["Movie", "Cinema", "Category"].map((item) => (
-                <li
-                  key={item}
-                  style={styles.navItem(
-                    searchIconHovered === item,
-                    item === "Movie"
-                  )}
-                  onMouseEnter={() => handleMouseEnter(item)}
-                  onMouseLeave={handleMouseLeave}
-                  onClick={() => {
-                    if (item === "Cinema") {
-                      navigate("/cinema");
-                    } else if (item === "Category") {
-                      setShowCategoryDropdown(!showCategoryDropdown);
-                    }
-                  }}
-                >
-                  {item}
-                  {item === "Category" && (
-                    <div style={styles.dropdownContainer}>
-                      {showCategoryDropdown && (
-                        <div style={styles.dropdown}>
-                          {categories.map((category, index) => (
-                            <div
-                              key={index}
-                              style={styles.dropdownItem}
-                              onMouseEnter={(e) =>
-                                (e.target.style.backgroundColor = "#333")
-                              }
-                              onMouseLeave={(e) =>
-                                (e.target.style.backgroundColor = "transparent")
-                              }
-                            >
-                              {category}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </li>
+      <style>
+        {`
+          .image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+          }
+          .zoom-out img {
+            transform: scale(1.05); /* Adjust the scale value as needed */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1.05); /* Center and scale down */
+          }
+        `}
+      </style>
+      {/* Navbar */}
+      <div style={styles.navbar}>
+        <div style={styles.navLogo}>CinemaApp</div>
+        <div style={styles.navLinks}>
+        <a
+  style={{
+    ...styles.navLink,
+    cursor: "default",
+    color: "#fff",
+  }}
+>
+  Movie
+</a>
+
+          <a 
+            style={styles.navLink}
+            onMouseEnter={(e) => e.target.style.color = "#fff"} 
+            onMouseLeave={(e) => e.target.style.color = "#aaa"}
+            href="/cinema" 
+          >
+            Cinema
+          </a>
+          <a 
+            style={styles.navLink}
+            onMouseEnter={(e) => e.target.style.color = "#fff"} 
+            onMouseLeave={(e) => e.target.style.color = "#aaa"}
+            href="#"
+            onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+          >
+            Category
+          </a>
+          {showCategoryDropdown && (
+            <div style={{ ...styles.dropdown, position: "absolute", top: "30px", backgroundColor: "#242424", padding: "10px", borderRadius: "4px" }}>
+              {categories.map((category, index) => (
+                <div key={index} style={{ padding: "8px", color: "#fff" }}>{category}</div>
               ))}
-            </ul>
-          </nav>
+            </div>
+          )}
         </div>
-        <div style={styles.actions}>
-          <div className="search-bar-section" style={styles.searchBarSection}>
-            <FaSearch style={styles.searchIcon} onClick={() => setShowSearchInput(!showSearchInput)} />
-            <input type="text" placeholder="Search for movies..." style={styles.searchBar} />
-          </div>
-          <button className="login-button" style={styles.loginButton}>
-            <FaSignInAlt /> Log In
-          </button>
-          <button className="join-button" style={styles.joinButton}>Join</button>
+            {/* Search Bar and Dropdowns */}
+            <div style={styles.searchBarSection}>
+  <FaSearch 
+    style={styles.searchIcon}
+    onMouseEnter={() => setSearchIconHovered(true)}
+    onMouseLeave={() => setSearchIconHovered(false)}
+    onClick={() => setShowSearchInput(!showSearchInput)}
+  />
+  <div style={styles.searchBar}>
+    <input
+      type="text"
+      placeholder="Search for movies..."
+      style={{ width: "100%", padding: "12px", borderRadius: "4px", border: "none" }}
+    />
+  </div>
+</div>
+        <div style={styles.navButtons}>
+          <button style={styles.button}><FaSignInAlt style={{ verticalAlign: 'middle', marginRight: "8px" }} /> Log In</button>
+          <button style={styles.button}>Join</button>
         </div>
       </header>
 
@@ -382,45 +384,54 @@ const HomePage = () => {
       </div>
 
       <div style={styles.selectCityAndDateWrapper}>
-        {/* Select City */}
-        <div style={styles.selectCityWrapper}>
-          <FaMapMarkerAlt style={styles.locationIcon} />
-          <select style={styles.dropdownSelect}>
-            <option>Select City</option>
-            <option>New York</option>
-            <option>Los Angeles</option>
-            <option>Chicago</option>
-          </select>
-        </div>
+  {/* Select City */}
+  <div style={styles.selectCityWrapper}>
+    <FaMapMarkerAlt style={styles.locationIcon} />
+    <select style={styles.dropdown}>
+      <option>Select City</option>
+      <option>New York</option>
+      <option>Los Angeles</option>
+      <option>Chicago</option>
+    </select>
+  </div>
 
-        {/* Select Date */}
-        <div style={styles.selectDateWrapper}>
-          <FaCalendarAlt style={styles.calendarIcon} />
-          <input type="date" style={styles.dateInput} />
-        </div>
-      </div>
+  {/* Select Date */}
+  <div style={styles.selectCityWrapper}>
+    <FaCalendarAlt style={styles.calendarIcon} />
+    <select style={styles.dropdown}>
+      <option>Select Date</option>
+      <option>Today</option>
+      <option>Tomorrow</option>
+      <option>This Weekend</option>
+    </select>
+  </div>
+</div>
+
 
       {/* Movie Row Section */}
       <div style={styles.movieRowContainer}>
-        {movies.map((movie, index) => (
-          <div key={index} style={styles.movieCard}>
-            <img
-              src={movie.imageUrl}
-              alt={movie.title}
-              style={styles.movieImage}
-            />
-            <div style={styles.movieDetails}>
-              <p style={styles.movieTitle}>{movie.title}</p>
-              <p style={styles.movieDate}>Release Date: {new Date(movie.releaseDate).toLocaleDateString() || "TBD"}</p>
-            </div>
-          </div>
-        ))}
+      {movies.map((movie, index) => (
+  <div key={index} style={styles.movieCard}>
+    <img
+      src={movie.imageUrl}
+      alt={movie.title}
+      style={styles.movieImage}
+    />
+    <div style={styles.movieDetails}>
+      <p style={styles.movieTitle}>{movie.title}</p>
+      <p style={styles.movieDate}>Release Date: {new Date(movie.releaseDate).toLocaleDateString() || "TBD"}</p>
+    </div>
+  </div>
+))}
+
       </div>
 
       {/* Footer */}
       <div style={styles.footer}>
         <p>© 2024 CinemaApp. All rights reserved.</p>
       </div>
+
+    
     </div>
   );
 };

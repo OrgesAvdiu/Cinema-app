@@ -54,14 +54,10 @@ namespace Cinema_app.Services
             }
 
             // Update movie detail properties
-            existingMovieDetail.Name = movieDetail.Name;
-            existingMovieDetail.Description = movieDetail.Description;
-            existingMovieDetail.Image = movieDetail.Image;
             existingMovieDetail.CinemaId = movieDetail.CinemaId;
             existingMovieDetail.NumberOfTickets = movieDetail.NumberOfTickets;
             existingMovieDetail.TotalPrice = movieDetail.TotalPrice;
             existingMovieDetail.PaymentMethod = movieDetail.PaymentMethod;
-            existingMovieDetail.UpdatedDate = DateTime.UtcNow;
 
             _context.SaveChanges();
         }
@@ -86,7 +82,6 @@ namespace Cinema_app.Services
         {
             return _context.MovieDetail
                 .Include(md => md.Cinema)
-                .Where(md => md.Name.Contains(searchTerm) || md.Description.Contains(searchTerm))
                 .ToList();
         }
     }

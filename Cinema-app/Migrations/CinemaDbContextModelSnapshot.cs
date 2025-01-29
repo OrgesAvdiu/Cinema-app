@@ -22,21 +22,6 @@ namespace Cinema_app.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CategoryMovie", b =>
-                {
-                    b.Property<int>("CategoriesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MoviesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CategoriesId", "MoviesId");
-
-                    b.HasIndex("MoviesId");
-
-                    b.ToTable("MovieCategory", (string)null);
-                });
-
             modelBuilder.Entity("Cinema_app.model.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -108,12 +93,19 @@ namespace Cinema_app.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Duration")
                         .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Language")
                         .IsRequired()
@@ -132,11 +124,9 @@ namespace Cinema_app.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("imageUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("Movies");
                 });
@@ -442,19 +432,15 @@ namespace Cinema_app.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CategoryMovie", b =>
+            modelBuilder.Entity("Cinema_app.model.Movie", b =>
                 {
-                    b.HasOne("Cinema_app.model.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
+                    b.HasOne("Cinema_app.model.Category", "Category")
+                        .WithMany("Movies")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Cinema_app.model.Movie", null)
-                        .WithMany()
-                        .HasForeignKey("MoviesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Cinema_app.model.MovieDetail", b =>
@@ -543,6 +529,11 @@ namespace Cinema_app.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Cinema_app.model.Category", b =>
+                {
+                    b.Navigation("Movies");
                 });
 
             modelBuilder.Entity("Cinema_app.model.Cinema", b =>

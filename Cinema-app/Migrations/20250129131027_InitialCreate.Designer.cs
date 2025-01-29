@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Cinema_app.Migrations
 {
     [DbContext(typeof(CinemaDbContext))]
-    [Migration("20250128150047_AddCategoryForeignKeyToMovies")]
-    partial class AddCategoryForeignKeyToMovies
+    [Migration("20250129131027_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,19 +25,19 @@ namespace Cinema_app.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Cinema_app.Models.MovieCategory", b =>
+            modelBuilder.Entity("CategoryMovie", b =>
                 {
-                    b.Property<int>("MovieId")
+                    b.Property<int>("CategoriesId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int>("MoviesId")
                         .HasColumnType("int");
 
-                    b.HasKey("MovieId", "CategoryId");
+                    b.HasKey("CategoriesId", "MoviesId");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("MoviesId");
 
-                    b.ToTable("MovieCategories");
+                    b.ToTable("MovieCategory", (string)null);
                 });
 
             modelBuilder.Entity("Cinema_app.model.Category", b =>
@@ -445,23 +445,19 @@ namespace Cinema_app.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Cinema_app.Models.MovieCategory", b =>
+            modelBuilder.Entity("CategoryMovie", b =>
                 {
-                    b.HasOne("Cinema_app.model.Category", "Category")
-                        .WithMany("MovieCategories")
-                        .HasForeignKey("CategoryId")
+                    b.HasOne("Cinema_app.model.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Cinema_app.model.Movie", "Movie")
-                        .WithMany("MovieCategories")
-                        .HasForeignKey("MovieId")
+                    b.HasOne("Cinema_app.model.Movie", null)
+                        .WithMany()
+                        .HasForeignKey("MoviesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Movie");
                 });
 
             modelBuilder.Entity("Cinema_app.model.MovieDetail", b =>
@@ -552,19 +548,9 @@ namespace Cinema_app.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Cinema_app.model.Category", b =>
-                {
-                    b.Navigation("MovieCategories");
-                });
-
             modelBuilder.Entity("Cinema_app.model.Cinema", b =>
                 {
                     b.Navigation("Rooms");
-                });
-
-            modelBuilder.Entity("Cinema_app.model.Movie", b =>
-                {
-                    b.Navigation("MovieCategories");
                 });
 #pragma warning restore 612, 618
         }

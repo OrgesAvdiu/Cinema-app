@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { getMovieById } from '../../services/MovieService'; // Adjust the import based on your file structure
 import MoviePopUp from './MoviePopUp'; // Import MoviePopUp
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
+
+const stripePromise = loadStripe("your-public-key-here"); // Replace with your actual public key
 
 const MovieList = ({ movies, cinemas }) => {
   const [selectedMovieId, setSelectedMovieId] = useState(null);
@@ -55,11 +59,13 @@ const MovieList = ({ movies, cinemas }) => {
 
       {/* Show MoviePopUp if showPopUp is true */}
       {showPopUp && movie && (
-        <MoviePopUp 
-          movieId={selectedMovieId} 
-          handleClose={handleClosePopup} 
-          cinemas={cinemas} 
-        />
+        <Elements stripe={stripePromise}>
+          <MoviePopUp 
+            movieId={selectedMovieId} 
+            handleClose={handleClosePopup} 
+            cinemas={cinemas} 
+          />
+        </Elements>
       )}
     </div>
   );

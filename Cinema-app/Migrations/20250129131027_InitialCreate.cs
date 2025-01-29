@@ -105,7 +105,9 @@ namespace Cinema_app.Migrations
                     Duration = table.Column<int>(type: "int", nullable: false),
                     ReleaseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Rating = table.Column<double>(type: "float", nullable: false),
-                    Language = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Language = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    imageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -236,6 +238,26 @@ namespace Cinema_app.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MovieDetail",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CinemaId = table.Column<int>(type: "int", nullable: false),
+                    PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MovieDetail", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MovieDetail_Cinemas_CinemaId",
+                        column: x => x.CinemaId,
+                        principalTable: "Cinemas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Rooms",
                 columns: table => new
                 {
@@ -258,7 +280,7 @@ namespace Cinema_app.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CategoryMovie",
+                name: "MovieCategory",
                 columns: table => new
                 {
                     CategoriesId = table.Column<int>(type: "int", nullable: false),
@@ -266,15 +288,15 @@ namespace Cinema_app.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CategoryMovie", x => new { x.CategoriesId, x.MoviesId });
+                    table.PrimaryKey("PK_MovieCategory", x => new { x.CategoriesId, x.MoviesId });
                     table.ForeignKey(
-                        name: "FK_CategoryMovie_Categories_CategoriesId",
+                        name: "FK_MovieCategory_Categories_CategoriesId",
                         column: x => x.CategoriesId,
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CategoryMovie_Movies_MoviesId",
+                        name: "FK_MovieCategory_Movies_MoviesId",
                         column: x => x.MoviesId,
                         principalTable: "Movies",
                         principalColumn: "Id",
@@ -345,14 +367,19 @@ namespace Cinema_app.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CategoryMovie_MoviesId",
-                table: "CategoryMovie",
-                column: "MoviesId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CityOffers_OffersId",
                 table: "CityOffers",
                 column: "OffersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MovieCategory_MoviesId",
+                table: "MovieCategory",
+                column: "MoviesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MovieDetail_CinemaId",
+                table: "MovieDetail",
+                column: "CinemaId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Rooms_CinemaId",
@@ -379,10 +406,13 @@ namespace Cinema_app.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CategoryMovie");
+                name: "CityOffers");
 
             migrationBuilder.DropTable(
-                name: "CityOffers");
+                name: "MovieCategory");
+
+            migrationBuilder.DropTable(
+                name: "MovieDetail");
 
             migrationBuilder.DropTable(
                 name: "Rooms");
@@ -394,16 +424,16 @@ namespace Cinema_app.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Categories");
-
-            migrationBuilder.DropTable(
-                name: "Movies");
-
-            migrationBuilder.DropTable(
                 name: "Cities");
 
             migrationBuilder.DropTable(
                 name: "Offers");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "Movies");
 
             migrationBuilder.DropTable(
                 name: "Cinemas");

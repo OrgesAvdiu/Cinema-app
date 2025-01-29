@@ -5,10 +5,12 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Cinema_app.Services;
+using CinemaApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("StripeSettings"));
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -34,6 +36,7 @@ builder.Services.AddScoped<OffersService>();
 builder.Services.AddScoped<CinemaService>();
 builder.Services.AddScoped<RoomsService>();
 builder.Services.AddScoped<MovieDetailService>();
+builder.Services.AddScoped<PaymentService>();
 
 // Add CORS policy to allow React app to make requests
 builder.Services.AddCors(options =>

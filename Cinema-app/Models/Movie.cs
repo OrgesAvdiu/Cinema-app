@@ -16,6 +16,6 @@ namespace Cinema_app.model
         public int CategoryID;
         public List<Category> Categories { get; set; } = new List<Category>();
         public string imageUrl { get; set; }
-        public decimal Price { get; set; }  
+        public decimal Price { get; set; }
     }
 }

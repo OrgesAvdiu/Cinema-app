@@ -11,6 +11,16 @@ export const getCategories = async () => {
   }
 };
 
+// Create payment intent
+export const createPaymentIntent = async (amount) => {
+  try {
+    const response = await axios.post('/api/payment/create-payment-intent', { amount });
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : 'Error creating payment intent';
+  }
+};
+
 // Get all movies
 export const getAllMovies = async () => {
   try {

@@ -5,7 +5,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Cinema_app.Services;
-using Cinema_app.services;
+//using Cinema_app.services;
 
 var builder = WebApplication.CreateBuilder(args);
 

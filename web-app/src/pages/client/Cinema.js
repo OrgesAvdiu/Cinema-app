@@ -1,22 +1,90 @@
-import React, { useState } from "react";
-import { FaSignInAlt } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaSignInAlt, FaSearch, FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { getAllMovies } from "../../services/MovieService";
 
 const Cinema = () => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showSearchInput, setShowSearchInput] = useState(false);
+  const [movies, setMovies] = useState([]);
   const navigate = useNavigate();
 
   const categories = ["Action", "Drama", "Comedy", "Horror", "Sci-Fi", "Romance"];
 
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const moviesData = await getAllMovies();
+        console.log("Movies fetched:", moviesData);
+        const adjustedMovies = moviesData.map(movie => ({
+          ...movie,
+          imageUrl: movie.imageUrl.replace("/web-app/public", "")
+        }));
+        setMovies(adjustedMovies);
+      } catch (error) {
+        console.error("There was an error fetching the movies!", error);
+      }
+    };
+
+    fetchMovies();
+  }, []);
+
   const styles = {
+    button: {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      padding: "12px 24px",
+      border: "2px solid transparent",
+      borderRadius: "50px",
+      cursor: "pointer",
+      fontWeight: "bold",
+      fontSize: "16px",
+      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+    },
+    buttonHover: {
+      transform: "scale(1.05)",
+      boxShadow: "0 6px 15px rgba(0, 0, 0, 0.6)",
+    },
+    loginButton: {
+      background: "#e50914",
+      color: "#fff",
+      boxShadow: "0 4px 10px rgba(229, 9, 20, 0.4)",
+    },
+    joinButton: {
+      background: "#000",
+      color: "#fff",
+      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.4)",
+    },
+    calendarButton: {
+      background: "#000",
+      color: "#fff",
+      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.4)",
+      border: "2px solid #fff",
+    },
+    citiesButton: {
+      background: "#000",
+      color: "#fff",
+      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.4)",
+      border: "2px solid #fff",
+    },
+    buttonContainer: {
+      display: "flex",
+      justifyContent: "flex-end",
+      gap: "20px",
+      marginTop: "20px",
+    },
     container: {
       fontFamily: "Arial, sans-serif",
       color: "#fff",
       backgroundColor: "#121212",
-      minHeight: "100vh", // Ensure it takes the full height of the viewport
+      minHeight: "100vh",
       display: "flex",
       flexDirection: "column",
+      margin: "0",
+      padding: "0",
+      boxSizing: "border-box",
     },
     header: {
       display: "flex",
@@ -24,11 +92,13 @@ const Cinema = () => {
       alignItems: "center",
       padding: "10px 20px",
       backgroundColor: "#242424",
+      width: "100%",
+      boxSizing: "border-box",
     },
     logoAndNav: {
       display: "flex",
       alignItems: "center",
-      gap: "30px", // Space between logo and navigation links
+      gap: "30px",
     },
     logo: {
       fontSize: "26px",
@@ -43,6 +113,7 @@ const Cinema = () => {
       listStyleType: "none",
       padding: 0,
       position: "relative",
+      margin: 0,
     },
     navItem: (isHovered, isActive) => ({
       fontWeight: "bold",
@@ -73,28 +144,45 @@ const Cinema = () => {
     },
     actions: {
       display: "flex",
-      gap: "15px",
+      alignItems: "center",
+      gap: "10px",
     },
-    button: {
+    searchBarSection: {
       display: "flex",
       alignItems: "center",
-      gap: "8px",
-      backgroundColor: "#e50914",
-      color: "#fff",
-      padding: "10px 20px",
-      border: "none",
+      gap: "10px",
+    },
+    searchBar: {
+      width: showSearchInput ? "200px" : "0",
+      padding: "10px",
       borderRadius: "4px",
+      border: "2px solid #fff",
+      backgroundColor: "#fff",
+      transition: "width 0.3s ease",
+      opacity: showSearchInput ? 1 : 0,
+      visibility: showSearchInput ? "visible" : "hidden",
+    },
+    searchIcon: {
+      fontSize: "20px",
+      color: "#fff",
       cursor: "pointer",
-      fontWeight: "bold",
     },
     main: {
-      flex: 1, // Take up the remaining space
+      flex: 1,
       padding: "20px",
+      backgroundColor: "#121212",
+      width: "100%",
+      boxSizing: "border-box",
     },
     movieGrid: {
       display: "grid",
       gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
       gap: "15px",
+    },
+    movieCardContainer: {
+      borderRadius: "8px",
+      padding: "10px",
+      backgroundColor: "#222",
     },
     movieCard: {
       textAlign: "center",
@@ -103,21 +191,45 @@ const Cinema = () => {
       borderRadius: "8px",
     },
     movieImage: {
-      width: "100%",
+      width: "150px",
+      height: "225px",
       borderRadius: "8px",
       marginBottom: "8px",
+      objectFit: "cover",
     },
     footer: {
       display: "flex",
       justifyContent: "space-between",
       flexWrap: "wrap",
-      gap: "20px",
-      borderTop: "1px solid #333",
-      paddingTop: "20px",
+      padding: "20px 50px",
       backgroundColor: "#242424",
+      width: "100%",
+      boxSizing: "border-box",
+      color: "#fff",
     },
     footerSection: {
       flex: "1 1 200px",
+      marginBottom: "20px",
+    },
+    footerSectionTitle: {
+      fontSize: "18px",
+      fontWeight: "bold",
+      marginBottom: "10px",
+      borderBottom: "2px solid #e50914",
+      display: "inline-block",
+    },
+    footerList: {
+      listStyleType: "none",
+      padding: 0,
+      margin: 0,
+    },
+    footerListItem: {
+      marginBottom: "8px",
+      cursor: "pointer",
+      transition: "color 0.2s ease",
+    },
+    footerListItemHover: {
+      color: "#e50914",
     },
     apps: {
       textAlign: "center",
@@ -180,69 +292,91 @@ const Cinema = () => {
           </nav>
         </div>
         <div style={styles.actions}>
-          <button style={styles.button}>
+          <div className="search-bar-section" style={styles.searchBarSection}>
+            <FaSearch style={styles.searchIcon} onClick={() => setShowSearchInput(!showSearchInput)} />
+            <input type="text" placeholder="Search for movies..." style={styles.searchBar} />
+          </div>
+          <button className="login-button" style={{ ...styles.button, ...styles.loginButton }}>
             <FaSignInAlt /> Log In
           </button>
-          <button style={styles.button}>Join</button>
+          <button className="join-button" style={{ ...styles.button, ...styles.joinButton }}>Join</button>
         </div>
       </header>
+      <div className="button-container" style={styles.buttonContainer}>
+        <button
+          className="calendar-button"
+          style={{ ...styles.button, ...styles.calendarButton, ...(hoveredItem === "calendar" && styles.buttonHover) }}
+          onClick={() => alert("Calendar Clicked!")}
+          onMouseEnter={() => setHoveredItem("calendar")}
+          onMouseLeave={() => setHoveredItem(null)}
+        >
+          <FaCalendarAlt /> Select Date
+        </button>
+        <button
+          className="cities-button"
+          style={{ ...styles.button, ...styles.citiesButton, ...(hoveredItem === "city" && styles.buttonHover) }}
+          onClick={() => alert("Cities Clicked!")}
+          onMouseEnter={() => setHoveredItem("city")}
+          onMouseLeave={() => setHoveredItem(null)}
+        >
+          <FaMapMarkerAlt /> Select City
+        </button>
+      </div>
       <main style={styles.main}>
-        <div style={styles.movieGrid}>
-          {[
-            "Better Man",
-            "Gladiator",
-            "Mufasa",
-            "Sonic 3",
-            "Trouble Shooters",
-            "Valana 2",
-          ].map((movie, index) => (
-            <div style={styles.movieCard} key={index}>
-              <img
-                src={`https://via.placeholder.com/150?text=${movie}`}
-                alt={movie}
-                style={styles.movieImage}
-              />
-              <p>{movie}</p>
-            </div>
-          ))}
+        <div className="movie-card-container" style={styles.movieCardContainer}>
+          <div style={styles.movieGrid}>
+            {movies.map((movie, index) => (
+              <div style={styles.movieCard} key={index}>
+                <img
+                  src={movie.imageUrl}
+                  alt={movie.title}
+                  style={styles.movieImage}
+                />
+                <p>{movie.title}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </main>
       <footer style={styles.footer}>
         <div style={styles.footerSection}>
-          <p>FILMA</p>
-          <ul>
-            <li>Top Film</li>
-            <li>Tani në kinema</li>
-            <li>Vijnë së shpejti</li>
+          <div style={styles.footerSectionTitle}>FILMA</div>
+          <ul style={styles.footerList}>
+            <li style={styles.footerListItem} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              Top Film
+            </li>
+            <li style={styles.footerListItem} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              Tani në kinema
+            </li>
+            <li style={styles.footerListItem} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              Vijnë së shpejti
+            </li>
           </ul>
         </div>
         <div style={styles.footerSection}>
-          <p>KINEMATË</p>
-          <ul>
-            <li>Prishtina</li>
-            <li>Prizren</li>
+          <div style={styles.footerSectionTitle}>KINEMATË</div>
+          <ul style={styles.footerList}>
+            <li style={styles.footerListItem} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              Prishtina
+            </li>
+            <li style={styles.footerListItem} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              Prizren
+            </li>
           </ul>
         </div>
         <div style={styles.footerSection}>
-          <p>INFORMACION</p>
-          <ul>
-            <li>Teknologjia</li>
-            <li>Karta Bonus</li>
-            <li>Klubi Familjar</li>
+          <div style={styles.footerSectionTitle}>INFORMACION</div>
+          <ul style={styles.footerList}>
+            <li style={styles.footerListItem} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              Teknologjia
+            </li>
+            <li style={styles.footerListItem} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              Karta Bonus
+            </li>
+            <li style={styles.footerListItem} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+              Klubi Familjar
+            </li>
           </ul>
-        </div>
-        <div style={styles.apps}>
-          <p>CINEMAAPP APPS</p>
-          <img
-            src="https://via.placeholder.com/120x40?text=App+Store"
-            alt="App Store"
-            style={styles.appImage}
-          />
-          <img
-            src="https://via.placeholder.com/120x40?text=Google+Play"
-            alt="Google Play"
-            style={styles.appImage}
-          />
         </div>
       </footer>
     </div>

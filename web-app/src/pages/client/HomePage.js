@@ -1,16 +1,16 @@
-import { width } from "@mui/system";
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import Axios
-import { getAllMovies } from "../../services/MovieService"; // Import the getAllMovies function
-import { FaMapMarkerAlt, FaSignInAlt, FaSearch, FaCalendarAlt, FaArrowLeft, FaArrowRight } from "react-icons/fa"; // Import the icons
+import { getAllMovies } from "../../services/MovieService"; 
+import { FaMapMarkerAlt, FaSignInAlt, FaSearch, FaCalendarAlt, FaArrowLeft, FaArrowRight } from "react-icons/fa"; 
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [movies, setMovies] = useState([]); // State for storing movies
+  const [movies, setMovies] = useState([]); 
   const [sliderImages, setSliderImages] = useState([]);
   const [showSearchInput, setShowSearchInput] = useState(false); 
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false); 
   const [searchIconHovered, setSearchIconHovered] = useState(false); 
+  const navigate = useNavigate();
 
   const categories = ["Action", "Drama", "Comedy", "Horror", "Sci-Fi", "Romance"];
 
@@ -18,10 +18,10 @@ const HomePage = () => {
     const fetchMovies = async () => {
       try {
         const moviesData = await getAllMovies();
-        console.log("Movies fetched:", moviesData); // Log the fetched data
+        console.log("Movies fetched:", moviesData); 
         const adjustedMovies = moviesData.map(movie => ({
           ...movie,
-          imageUrl: movie.imageUrl.replace("/web-app/public", "") // Adjust the image URL
+          imageUrl: movie.imageUrl.replace("/web-app/public", "") 
         }));
         setMovies(adjustedMovies);
         const sliderImages = [
@@ -38,119 +38,146 @@ const HomePage = () => {
 
     fetchMovies();
 
-  // Set up the interval for automatic sliding
-  const interval = setInterval(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % sliderImages.length);
+    }, 3000); 
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [sliderImages.length]); 
+
+  const nextSlide = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % sliderImages.length);
-  }, 3000); // Change slide every 3 seconds
-
-  // Clear the interval when the component unmounts
-  return () => {
-    clearInterval(interval);
   };
-}, [sliderImages.length]); // Re-run the effect if the length of sliderImages changes
 
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + sliderImages.length) % sliderImages.length);
+  };
 
-const nextSlide = () => {
-  setCurrentIndex((prevIndex) => (prevIndex + 1) % sliderImages.length);
-};
-
-const prevSlide = () => {
-  setCurrentIndex((prevIndex) => (prevIndex - 1 + sliderImages.length) % sliderImages.length);
-};
   const styles = {
     container: {
       fontFamily: "Arial, sans-serif",
-      backgroundColor: "#121212", // Dark background color for the entire page
-      color: "#fff", // White text color
-      
+      backgroundColor: "black", 
+      color: "#fff", 
     },
-    
-      selectCityAndDateWrapper: {
-        display: "flex", // Flexbox for horizontal alignment
-        flexDirection: "row", // Arrange items in a row
-        alignItems: "center", // Vertically align items in the row
-        justifyContent: "flex-end", // Push elements to the right
-        marginTop: "20px", // Space below the slider
-        paddingRight: "10%", // Padding on the right for alignment
-        gap: "20px", // Space between "Select City" and "Select Date"
-        width: "84%" ,
-      },
-   
-    navbar: {
+    header: {
       display: "flex",
       justifyContent: "space-between",
       alignItems: "center",
       padding: "10px 20px",
-      backgroundColor: "#242424",
-      color: "#fff",
-   
+      backgroundColor: "#242424", 
+      color: "#242424",
+      position: "relative", 
+      zIndex: 50, 
     },
-    navLogo: {
+    logoAndNav: {
+      display: "flex",
+      alignItems: "center",
+      gap: "30px", 
+    },
+    logo: {
       fontSize: "26px",
       fontWeight: "bold",
-      color: "#e50914", // Red color
-      textTransform: "uppercase", // All uppercase letters
-      fontStyle: "italic", // Italic text
+      color: "#e50914", 
+      textTransform: "uppercase", 
+      fontStyle: "italic", 
+      cursor: "pointer", 
     },
-    navLinks: {
+    nav: {
       display: "flex",
-      gap: "10px", // Reduced gap for the links to stay closer to the logo
-      marginRight: "883px", // Added margin to move them slightly to the left
-      position: "relative", // Needed to position the category dropdown properly
+      gap: "20px",
+      listStyleType: "none",
+      padding: 0,
+      margin: 0,
     },
-    navLink: {
-      color: "#aaa", // Gray color for the links
+    navItem: (isHovered, isActive) => ({
+      fontWeight: "bold",
       textDecoration: "none",
-      fontWeight: "bold",
+      color: isActive ? "#fff" : isHovered ? "#fff" : "#aaa",
       cursor: "pointer",
-      transition: "color 0.3s", // Smooth transition effect for color change
+      transition: "color 0.3s ease",
+      position: "relative",
+    }),
+    dropdownContainer: {
+      position: "relative", 
     },
-    navLinkHover: {
-      color: "#fff", // White color on hover
-    },
-    navButtons: {
-      display: "flex",
-      gap: "15px",
-    },
-    button: {
-      backgroundColor: "#e50914",
+    dropdown: {
+      position: "absolute", 
+      top: "100%", 
+      left: "0",
+      backgroundColor: "#000", 
       color: "#fff",
-      padding: "10px 20px",
-      border: "none",
       borderRadius: "4px",
+      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
+      padding: "10px",
+      zIndex: 1000,
+    },
+    dropdownItem: {
+      padding: "8px",
       cursor: "pointer",
-      fontWeight: "bold",
+      transition: "background-color 0.3s ease",
+    },
+    actions: {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
     },
     searchBarSection: {
-      margin: "20px 0",
       display: "flex",
-      justifyContent: "center",
-      alignItems: "center", // Center items vertically
-      position: "relative", // Ensure that the search bar is positioned relative to this container
+      alignItems: "center",
+      gap: "10px",
     },
     searchBar: {
-      position: "absolute", // Keep the search bar absolutely positioned within its container
-      right: "0", // Position the search bar to the right side of the navbar
-      width: showSearchInput ? "200px" : "0", // Smoothly expand the search bar when visible
-      padding: "12px",
+      width: showSearchInput ? "200px" : "0",
+      padding: "10px",
       borderRadius: "4px",
-      border: "none",
-      display: "flex",
-      alignItems: "center", // Align the icon and input
-      opacity: showSearchInput ? 1 : 0, // Fade in and out for smooth transition
-      visibility: showSearchInput ? "visible" : "hidden", // Toggle visibility
-      transition: "width 0.3s ease, opacity 0.3s ease", // Smooth width and opacity transition
-      zIndex: 10, // Ensure the search bar appears on top of other elements
+      border: "none", 
+      transition: "width 0.3s ease",
+      opacity: showSearchInput ? 1 : 0,
+      visibility: showSearchInput ? "visible" : "hidden",
     },
     searchIcon: {
-      fontSize: "20px", // Adjust size as needed
-      color: searchIconHovered ? "#fff" : "#e50914", // Change color on hover
-      cursor: "pointer", // Make the icon clickable
-      position: "absolute", // Position the icon absolute to move it in front of the search bar
-      right: showSearchInput ? "210px" : "10px", // Move the icon in front of the search bar when it is expanded
-      transition: "right 0.3s ease", // Smooth transition for the icon position
-      zIndex: 20, // Ensure the search icon appears on top of the search bar
-      margin: "0 10px"
+      fontSize: "20px",
+      color: "#fff", 
+      cursor: "pointer",
+    },
+    loginButton: {
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      backgroundColor: "#e50914",
+      color: "#fff",
+      padding: "14px 28px", 
+      border: "none", 
+      borderRadius: "20px", 
+      cursor: "pointer",
+      fontWeight: "bold",
+      boxShadow: "0 4px 10px rgba(229, 9, 20, 0.4)",
+      fontSize: "16px", 
+    },
+    joinButton: {
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      backgroundColor: "#000", 
+      color: "#fff",
+      padding: "14px 28px", 
+      border: "none", 
+      borderRadius: "20px",
+      cursor: "pointer",
+      fontWeight: "bold",
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)", 
+      fontSize: "16px",
+    },
+    selectCityAndDateWrapper: {
+      display: "flex", 
+      flexDirection: "row", 
+      alignItems: "center", 
+      justifyContent: "center", 
+      marginTop: "20px", 
+      gap: "20px", 
+      width: "100%",
     },
     selectCityWrapper: {
       display: "flex",
@@ -159,62 +186,51 @@ const prevSlide = () => {
     },
     locationIcon: {
       fontSize: "20px",
-      color: "#e50914",
+      color: "#fff",
     },
-    dropdown: {
+    dropdownSelect: {
+      backgroundColor: "#000", 
+      color: "#fff", 
       padding: "10px",
-      borderRadius: "4px",
-      width: "150px", // Adjust the width to fit your design
+      borderRadius: "20px",
+      width: "150px",
       fontSize: "14px",
-      border: "none",
+      border: "2px solid #fff", 
       outline: "none",
     },
+    selectDateWrapper: {
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+    },
     calendarIcon: {
-      fontSize: "20px", // Calendar icon size
-      color: "#e50914", // Icon color
+      fontSize: "20px", 
+      color: "#fff", 
     },
-    heroSection: {
-      backgroundColor: "transparent",
-      color: "#fff",
-      textAlign: "center",
-      padding: "60px 20px",
-      borderRadius: "8px",
-      margin: "20px 0",
-      position: "relative",
-    },
-    heroHeading: {
-      fontSize: "48px",
-      fontWeight: "bold",
-      marginBottom: "10px",
-    },
-    heroText: {
-      fontSize: "18px",
-      marginBottom: "20px",
-    },
-    ctaButton: {
-      backgroundColor: "#e50914",
-      color: "#fff",
-      padding: "12px 24px",
-      fontSize: "16px",
-      border: "none",
-      borderRadius: "4px",
-      cursor: "pointer",
-      textTransform: "uppercase",
-      fontWeight: "bold",
+    dateInput: {
+      backgroundColor: "#000", 
+      color: "#fff", 
+      padding: "10px",
+      borderRadius: "20px",
+      width: "150px",
+      fontSize: "14px",
+      border: "2px solid #fff", 
+      outline: "none",
+      colorScheme: "dark",
     },
     sliderContainer: {
       position: "relative",
-      width: "70%", // Set to half of the page width
-      margin: "0 auto", // Center the slider
+      width: "70%", 
+      margin: "0 auto", 
       overflow: "hidden",
       borderRadius: "8px",
-      height: "300px",
-
+      height: "400px",
+      zIndex: 1,
     },
-      slideTrack: {
+    slideTrack: {
       display: "flex",
       transition: "transform 0.5s ease-in-out",
-      width: `${sliderImages.length * 100}%`, // Set the width based on the number of images
+      width: `${sliderImages.length * 100}%`,
     },
     slide: {
       display: "flex",
@@ -223,8 +239,8 @@ const prevSlide = () => {
     },
     slideImage: {
       width: "100%",
-      objectFit: "cover",
-      height: "400px", // Shortened height
+      height: "100%", 
+      objectFit: "cover", 
     },
     arrowButton: {
       position: "absolute",
@@ -232,7 +248,7 @@ const prevSlide = () => {
       transform: "translateY(-50%)",
       backgroundColor: "rgba(0, 0, 0, 0.5)",
       color: "#fff",
-      border: "none",
+      border: "none", 
       padding: "10px",
       fontSize: "20px",
       cursor: "pointer",
@@ -250,7 +266,7 @@ const prevSlide = () => {
       gap: "1px",
       marginTop: "40px",
       marginBottom: "40px",
-      padding: "0 10%", // Add padding to the left and right for more space
+      padding: "0 10%", 
     },
     movieCard: {
       width: "23%",
@@ -261,6 +277,7 @@ const prevSlide = () => {
       height: "400px",
       objectFit: "cover",
       borderRadius: "8px",
+      border: "none", 
     },
     movieDetails: {
       marginTop: "10px",
@@ -274,7 +291,7 @@ const prevSlide = () => {
       color: "#888",
     },
     footer: {
-      backgroundColor: "#1a1a1a", // Slightly brighter footer
+      backgroundColor: "#000", 
       color: "#fff",
       padding: "20px",
       textAlign: "center",
@@ -282,144 +299,122 @@ const prevSlide = () => {
     },
   };
 
+  const handleMouseEnter = (item) => setSearchIconHovered(item);
+  const handleMouseLeave = () => setSearchIconHovered(null);
+
   return (
     <div style={styles.container}>
-      <style>
-        {`
-          .image-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-          }
-          .zoom-out img {
-            transform: scale(1.05); /* Adjust the scale value as needed */
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(1.05); /* Center and scale down */
-          }
-        `}
-      </style>
-      {/* Navbar */}
-      <div style={styles.navbar}>
-        <div style={styles.navLogo}>CinemaApp</div>
-        <div style={styles.navLinks}>
-        <a
-  style={{
-    ...styles.navLink,
-    cursor: "default", // Make it look like a static text
-    color: "#fff", // Set a distinct color for the "Movie" text
-  }}
->
-  Movie
-</a>
-
-          <a 
-            style={styles.navLink}
-            onMouseEnter={(e) => e.target.style.color = "#fff"} 
-            onMouseLeave={(e) => e.target.style.color = "#aaa"}
-            href="/cinema" 
-          >
-            Cinema
-          </a>
-          <a 
-            style={styles.navLink}
-            onMouseEnter={(e) => e.target.style.color = "#fff"} 
-            onMouseLeave={(e) => e.target.style.color = "#aaa"}
-            href="#"
-            onClick={() => setShowCategoryDropdown(!showCategoryDropdown)} // Toggle category dropdown visibility
-          >
-            Category
-          </a>
-          {showCategoryDropdown && (
-            <div style={{ ...styles.dropdown, position: "absolute", top: "30px", backgroundColor: "#242424", padding: "10px", borderRadius: "4px" }}>
-              {categories.map((category, index) => (
-                <div key={index} style={{ padding: "8px", color: "#fff" }}>{category}</div>
+      <header style={styles.header}>
+        <div style={styles.logoAndNav}>
+          <h1 style={styles.logo} onClick={() => navigate("/")}>CinemaApp</h1>
+          <nav>
+            <ul style={styles.nav}>
+              {["Movie", "Cinema", "Category"].map((item) => (
+                <li
+                  key={item}
+                  style={styles.navItem(
+                    searchIconHovered === item,
+                    item === "Movie"
+                  )}
+                  onMouseEnter={() => handleMouseEnter(item)}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={() => {
+                    if (item === "Cinema") {
+                      navigate("/cinema");
+                    } else if (item === "Category") {
+                      setShowCategoryDropdown(!showCategoryDropdown);
+                    }
+                  }}
+                >
+                  {item}
+                  {item === "Category" && (
+                    <div style={styles.dropdownContainer}>
+                      {showCategoryDropdown && (
+                        <div style={styles.dropdown}>
+                          {categories.map((category, index) => (
+                            <div
+                              key={index}
+                              style={styles.dropdownItem}
+                              onMouseEnter={(e) =>
+                                (e.target.style.backgroundColor = "#333")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.target.style.backgroundColor = "transparent")
+                              }
+                            >
+                              {category}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </li>
               ))}
-            </div>
-          )}
+            </ul>
+          </nav>
         </div>
-            {/* Search Bar and Dropdowns */}
-            <div style={styles.searchBarSection}>
-  <FaSearch 
-    style={styles.searchIcon}
-    onMouseEnter={() => setSearchIconHovered(true)} // Set hover state to true
-    onMouseLeave={() => setSearchIconHovered(false)} // Set hover state to false
-    onClick={() => setShowSearchInput(!showSearchInput)} // Toggle search input visibility
-  />
-  <div style={styles.searchBar}>
-    <input
-      type="text"
-      placeholder="Search for movies..."
-      style={{ width: "100%", padding: "12px", borderRadius: "4px", border: "none" }}
-    />
-  </div>
-</div>
-        <div style={styles.navButtons}>
-          <button style={styles.button}><FaSignInAlt style={{ verticalAlign: 'middle', marginRight: "8px" }} /> Log In</button>
-          <button style={styles.button}>Join</button>
+        <div style={styles.actions}>
+          <div className="search-bar-section" style={styles.searchBarSection}>
+            <FaSearch style={styles.searchIcon} onClick={() => setShowSearchInput(!showSearchInput)} />
+            <input type="text" placeholder="Search for movies..." style={styles.searchBar} />
+          </div>
+          <button className="login-button" style={styles.loginButton}>
+            <FaSignInAlt /> Log In
+          </button>
+          <button className="join-button" style={styles.joinButton}>Join</button>
         </div>
-      </div>
-
-  
+      </header>
 
       {/* Hero Section with Slider */}
       <div style={styles.sliderContainer}>
-  <div style={{ ...styles.slideTrack, transform: `translateX(-${currentIndex * (100 / sliderImages.length)}%)` }}>
-    {sliderImages.map((image, index) => (
-      <div key={index} style={styles.slide}>
-        <div className={index === 2 ? "image-wrapper zoom-out" : "image-wrapper"}>
-        <img src={image.imageUrl} alt={image.title} style={styles.slideImage} />
+        <div style={{ ...styles.slideTrack, transform: `translateX(-${currentIndex * (100 / sliderImages.length)}%)` }}>
+          {sliderImages.map((image, index) => (
+            <div key={index} style={styles.slide}>
+              <div className={index === 2 ? "image-wrapper zoom-out" : "image-wrapper"}>
+                <img src={image.imageUrl} alt={image.title} style={styles.slideImage} />
+              </div>
+            </div>
+          ))}
+        </div>
+        <button style={{ ...styles.arrowButton, ...styles.leftArrow }} onClick={prevSlide}><FaArrowLeft /></button>
+        <button style={{ ...styles.arrowButton, ...styles.rightArrow }} onClick={nextSlide}><FaArrowRight /></button>
       </div>
-      </div>
-    ))}
-  </div>
-  <button style={{ ...styles.arrowButton, ...styles.leftArrow }} onClick={prevSlide}><FaArrowLeft /></button>
-  <button style={{ ...styles.arrowButton, ...styles.rightArrow }} onClick={nextSlide}><FaArrowRight /></button>
-</div>
 
       <div style={styles.selectCityAndDateWrapper}>
-  {/* Select City */}
-  <div style={styles.selectCityWrapper}>
-    <FaMapMarkerAlt style={styles.locationIcon} />
-    <select style={styles.dropdown}>
-      <option>Select City</option>
-      <option>New York</option>
-      <option>Los Angeles</option>
-      <option>Chicago</option>
-    </select>
-  </div>
+        {/* Select City */}
+        <div style={styles.selectCityWrapper}>
+          <FaMapMarkerAlt style={styles.locationIcon} />
+          <select style={styles.dropdownSelect}>
+            <option>Select City</option>
+            <option>New York</option>
+            <option>Los Angeles</option>
+            <option>Chicago</option>
+          </select>
+        </div>
 
-  {/* Select Date */}
-  <div style={styles.selectCityWrapper}>
-    <FaCalendarAlt style={styles.calendarIcon} />
-    <select style={styles.dropdown}>
-      <option>Select Date</option>
-      <option>Today</option>
-      <option>Tomorrow</option>
-      <option>This Weekend</option>
-    </select>
-  </div>
-</div>
-
+        {/* Select Date */}
+        <div style={styles.selectDateWrapper}>
+          <FaCalendarAlt style={styles.calendarIcon} />
+          <input type="date" style={styles.dateInput} />
+        </div>
+      </div>
 
       {/* Movie Row Section */}
       <div style={styles.movieRowContainer}>
-      {movies.map((movie, index) => (
-  <div key={index} style={styles.movieCard}>
-    <img
-      src={movie.imageUrl}
-      alt={movie.title}
-      style={styles.movieImage}
-    />
-    <div style={styles.movieDetails}>
-      <p style={styles.movieTitle}>{movie.title}</p>
-      <p style={styles.movieDate}>Release Date: {new Date(movie.releaseDate).toLocaleDateString() || "TBD"}</p>
-    </div>
-  </div>
-))}
-
+        {movies.map((movie, index) => (
+          <div key={index} style={styles.movieCard}>
+            <img
+              src={movie.imageUrl}
+              alt={movie.title}
+              style={styles.movieImage}
+            />
+            <div style={styles.movieDetails}>
+              <p style={styles.movieTitle}>{movie.title}</p>
+              <p style={styles.movieDate}>Release Date: {new Date(movie.releaseDate).toLocaleDateString() || "TBD"}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Footer */}

@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import { getAllMovies, addMovie, updateMovieById, deleteMovieById, getCategories } from '../../services/MovieService';
 
+
 const MovieView = () => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,8 +47,8 @@ const MovieView = () => {
         setMovies(parsedMovies);
         setCategories(categoriesData);
       } catch (error) {
-        setError('Error fetching movies or categories');
-        console.error('Error fetching movies or categories:', error);
+        setError(error);
+        console.error(error);
       } finally {
         setLoading(false);
         setCategoriesLoading(false);
@@ -141,7 +142,7 @@ const MovieView = () => {
       handleCloseModal();
     } catch (err) {
       setError(JSON.stringify(err));
-      console.error('Error adding movie:', err);
+      console.error(err);
     }
   };
 
